@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [2.3.0] - 2026-02-09
 
 - Add missing sarai_chinwag_clear_all_image_count_caches() function to fix stale image counts in Redis cache
 - Fix misleading doc comments that said '2-hour cache' when using YEAR_IN_SECONDS
