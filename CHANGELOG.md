@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add missing sarai_chinwag_clear_all_image_count_caches() function to fix stale image counts in Redis cache
+- Fix misleading doc comments that said '2-hour cache' when using YEAR_IN_SECONDS
+
 ## [2.2.20] - 2026-02-06
 
 - Add GitHub and Moltbook to footer social links

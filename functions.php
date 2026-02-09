@@ -423,7 +423,9 @@ function sarai_chinwag_gallery_discovery_badges() {
 }
 
 /**
- * Get cached image count for category/tag with 2-hour cache
+ * Get cached image count for category/tag
+ *
+ * Uses persistent cache, invalidated on post save/delete.
  *
  * @param int    $term_id  Term ID
  * @param string $taxonomy Taxonomy name
@@ -448,7 +450,9 @@ function sarai_chinwag_get_accurate_term_image_count($term_id, $taxonomy) {
 }
 
 /**
- * Get cached site-wide image count with 2-hour cache
+ * Get cached site-wide image count
+ *
+ * Uses persistent cache, invalidated on post save/delete.
  *
  * @return int Total site image count
  */
@@ -471,7 +475,10 @@ function sarai_chinwag_get_site_wide_image_count() {
 }
 
 /**
- * Get cached search image count with 2-hour cache
+ * Get cached search image count
+ *
+ * Uses persistent cache with year-long TTL. Search caches are not
+ * individually invalidated but are less critical than archive counts.
  *
  * @param string $search_query Search query
  * @return int Search image count
@@ -492,6 +499,41 @@ function sarai_chinwag_get_search_image_count($search_query) {
     }
     
     return 0;
+}
+
+/**
+ * Clear all image count caches when posts are updated
+ *
+ * Centralized function to invalidate image count caches.
+ * Called on post save/delete to ensure accurate counts.
+ *
+ * @param int $post_id Post ID (optional, used to clear term-specific caches)
+ * @since 2.3
+ */
+function sarai_chinwag_clear_all_image_count_caches( $post_id = 0 ) {
+    // Always clear site-wide count
+    wp_cache_delete( 'site_wide_image_count', 'sarai_chinwag_images' );
+
+    // Also clear the data cache for all site images
+    wp_cache_delete( 'sarai_chinwag_all_site_images', 'sarai_chinwag_images' );
+
+    // If we have a post ID, clear its term-specific count caches
+    if ( $post_id ) {
+        $categories = get_the_category( $post_id );
+        $tags       = get_the_tags( $post_id );
+
+        if ( $categories ) {
+            foreach ( $categories as $category ) {
+                wp_cache_delete( "term_image_count_{$category->term_id}_category", 'sarai_chinwag_images' );
+            }
+        }
+
+        if ( $tags ) {
+            foreach ( $tags as $tag ) {
+                wp_cache_delete( "term_image_count_{$tag->term_id}_post_tag", 'sarai_chinwag_images' );
+            }
+        }
+    }
 }
 
 /**
