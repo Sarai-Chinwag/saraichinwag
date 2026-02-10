@@ -21,18 +21,28 @@
  * @since 2.1
  */
 function sarai_chinwag_extract_images_from_term($term_id, $term_type, $limit = 30) {
-    $cache_key = "sarai_chinwag_term_images_{$term_id}_{$term_type}";
+    // Use separate cache keys for display (small limit) vs counting (large limit)
+    $is_count_request = $limit > 1000;
+    $cache_key = $is_count_request 
+        ? "sarai_chinwag_term_images_{$term_id}_{$term_type}_full"
+        : "sarai_chinwag_term_images_{$term_id}_{$term_type}";
     $cached_images = wp_cache_get($cache_key, 'sarai_chinwag_images');
     
+    // For count requests, only use cache if it has enough images
     if ($cached_images !== false) {
-        return array_slice($cached_images, 0, $limit);
+        if (!$is_count_request || count($cached_images) >= $limit) {
+            return array_slice($cached_images, 0, $limit);
+        }
     }
+    
+    // For counting, get ALL posts; for display, limit to 500
+    $query_limit = $is_count_request ? -1 : 500;
     
     $posts = get_posts(array(
         'post_type' => array('post', 'recipe'),
         'post_status' => 'publish',
-        'numberposts' => 500,
-        'orderby' => 'rand',
+        'numberposts' => $query_limit,
+        'orderby' => $is_count_request ? 'ID' : 'rand',
         'tax_query' => array(
             array(
                 'taxonomy' => $term_type,
@@ -69,18 +79,23 @@ function sarai_chinwag_extract_images_from_term($term_id, $term_type, $limit = 3
             }
         }
         
-        if (count($all_images) >= $limit * 2) {
+        // Only break early for display requests
+        if (!$is_count_request && count($all_images) >= $limit * 2) {
             break;
         }
     }
     
     wp_reset_postdata();
     
-    shuffle($all_images);
+    if (!$is_count_request) {
+        shuffle($all_images);
+    }
     
-    wp_cache_set($cache_key, $all_images, 'sarai_chinwag_images', 3600);
+    // Cache with appropriate TTL (longer for counts since they're expensive)
+    $ttl = $is_count_request ? DAY_IN_SECONDS : 3600;
+    wp_cache_set($cache_key, $all_images, 'sarai_chinwag_images', $ttl);
     
-    return array_slice($all_images, 0, $limit);
+    return $is_count_request ? $all_images : array_slice($all_images, 0, $limit);
 }
 
 /**
@@ -356,19 +371,27 @@ function sarai_chinwag_get_filtered_term_images($term_id, $term_type, $sort_by =
  * @since 2.1
  */
 function sarai_chinwag_get_all_site_images($limit = 30) {
-    $cache_key = "sarai_chinwag_all_site_images";
+    // Use separate cache keys for display (small limit) vs counting (large limit)
+    $is_count_request = $limit > 1000;
+    $cache_key = $is_count_request ? "sarai_chinwag_all_site_images_full" : "sarai_chinwag_all_site_images";
     $cached_images = wp_cache_get($cache_key, 'sarai_chinwag_images');
     
+    // For count requests, only use cache if it has enough images
     if ($cached_images !== false) {
-        return array_slice($cached_images, 0, $limit);
+        if (!$is_count_request || count($cached_images) >= $limit) {
+            return array_slice($cached_images, 0, $limit);
+        }
     }
+    
+    // For counting, query ALL attachments; for display, limit the query
+    $query_limit = $is_count_request ? -1 : ($limit * 2);
     
     $args = array(
         'post_type' => 'attachment',
         'post_status' => 'inherit',
         'post_mime_type' => 'image',
-        'posts_per_page' => $limit * 2,
-        'orderby' => 'rand',
+        'posts_per_page' => $query_limit,
+        'orderby' => $is_count_request ? 'ID' : 'rand',
         'meta_query' => array(
             array(
                 'key' => '_wp_attached_file',
@@ -395,16 +418,21 @@ function sarai_chinwag_get_all_site_images($limit = 30) {
             $images[] = $image_data;
         }
         
-        if (count($images) >= $limit) {
+        // Only break early for display requests
+        if (!$is_count_request && count($images) >= $limit) {
             break;
         }
     }
     
-    shuffle($images);
+    if (!$is_count_request) {
+        shuffle($images);
+    }
     
-    wp_cache_set($cache_key, $images, 'sarai_chinwag_images', 3600);
+    // Cache with appropriate TTL (longer for counts since they're expensive)
+    $ttl = $is_count_request ? DAY_IN_SECONDS : 3600;
+    wp_cache_set($cache_key, $images, 'sarai_chinwag_images', $ttl);
     
-    return $images;
+    return $is_count_request ? $images : array_slice($images, 0, $limit);
 }
 
 /**
