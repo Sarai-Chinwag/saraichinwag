@@ -511,26 +511,35 @@ function sarai_chinwag_get_search_image_count($search_query) {
  * @since 2.3
  */
 function sarai_chinwag_clear_all_image_count_caches( $post_id = 0 ) {
-    // Always clear site-wide count
+    // Always clear site-wide caches (both count and data, display and full)
     wp_cache_delete( 'site_wide_image_count', 'sarai_chinwag_images' );
-
-    // Also clear the data cache for all site images
     wp_cache_delete( 'sarai_chinwag_all_site_images', 'sarai_chinwag_images' );
+    wp_cache_delete( 'sarai_chinwag_all_site_images_full', 'sarai_chinwag_images' );
 
-    // If we have a post ID, clear its term-specific count caches
+    // If we have a post ID, clear its term-specific caches
     if ( $post_id ) {
         $categories = get_the_category( $post_id );
         $tags       = get_the_tags( $post_id );
 
         if ( $categories ) {
             foreach ( $categories as $category ) {
+                // Clear count cache
                 wp_cache_delete( "term_image_count_{$category->term_id}_category", 'sarai_chinwag_images' );
+                // Clear display data cache
+                wp_cache_delete( "sarai_chinwag_term_images_{$category->term_id}_category", 'sarai_chinwag_images' );
+                // Clear full data cache (for counting)
+                wp_cache_delete( "sarai_chinwag_term_images_{$category->term_id}_category_full", 'sarai_chinwag_images' );
             }
         }
 
         if ( $tags ) {
             foreach ( $tags as $tag ) {
+                // Clear count cache
                 wp_cache_delete( "term_image_count_{$tag->term_id}_post_tag", 'sarai_chinwag_images' );
+                // Clear display data cache
+                wp_cache_delete( "sarai_chinwag_term_images_{$tag->term_id}_post_tag", 'sarai_chinwag_images' );
+                // Clear full data cache (for counting)
+                wp_cache_delete( "sarai_chinwag_term_images_{$tag->term_id}_post_tag_full", 'sarai_chinwag_images' );
             }
         }
     }
