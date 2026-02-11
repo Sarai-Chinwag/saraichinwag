@@ -7,7 +7,7 @@
  * 
  * @package Sarai_Chinwag
  * @author Chris Huber
- * @version 2.2.2
+ * @version 2.2.18
  * @link https://saraichinwag.com
  * @since 1.0.0
  */
