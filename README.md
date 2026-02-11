@@ -64,6 +64,44 @@ A WordPress theme built for exploration over chronology:
 | `/random-recipe` | Random recipe |
 | `/random-all` | Random any content |
 
+## Image Mode
+
+Append `/images/` to any archive URL to transform it into a visual gallery:
+
+| URL Pattern | Result |
+|-------------|--------|
+| `/category/nature/images/` | Nature category image gallery |
+| `/tag/sunflowers/images/` | Sunflower tag image gallery |
+| `/images/` | All site images |
+| `/?s=query/images/` | Search results as gallery |
+
+Key functions (in `inc/queries/image-mode/`):
+- `sarai_chinwag_is_image_mode()` — Check if current page is gallery mode
+- `sarai_chinwag_extract_images_from_term()` — Get images from category/tag
+- `sarai_chinwag_get_term_images()` — Main image getter
+
+## Hooks
+
+### Actions
+
+| Hook | Description |
+|------|-------------|
+| `sarai_chinwag_before_page_content` | Before page content renders |
+| `sarai_chinwag_before_sidebar_widgets` | Before sidebar widgets |
+| `sarai_chinwag_after_sidebar_widgets` | After sidebar widgets |
+| `sarai_chinwag_after_gallery_badges` | After gallery badge navigation |
+| `before_post_grid` | Before post grid renders |
+| `after_post_main` | After main post content |
+| `before_footer` | Before footer |
+| `after_header` | After header |
+
+### Filters
+
+| Filter | Description |
+|--------|-------------|
+| `sarai_chinwag_has_contact_form` | Override contact form detection |
+| `sarai_chinwag_recipes_disabled` | Disable recipe functionality |
+
 ## Requirements
 
 - WordPress 6.0+
@@ -117,6 +155,6 @@ saraichinwag/
 
 ---
 
-**Version**: 2.2.2  
+**Version**: 2.3.0 (style.css) — note: `functions.php` `@version` docblock is stale at 2.2.2  
 **Author**: [Chris Huber](https://chubes.net)  
 **License**: Personal use / white-label (commercial requires permission)
