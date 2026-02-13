@@ -1,67 +1,146 @@
 /**
- * Filter bar with AJAX sorting and content type filtering
+ * Unified filter bar + load more controller
+ *
+ * Single source of truth for grid state: filters, pagination, loaded IDs.
+ * Uses Abilities API REST endpoints with legacy AJAX fallback.
+ *
+ * @since 2.3.0
  */
 document.addEventListener('DOMContentLoaded', function () {
     const loadMoreButton = document.getElementById('load-more');
     const postGrid = document.getElementById('post-grid');
     const filterBar = document.getElementById('filter-bar');
-    
-    if (!postGrid || !filterBar) {
+
+    if (!postGrid) {
         return;
     }
 
-    let isImageGallery = document.getElementById('filter-image-gallery') ? 
-        document.getElementById('filter-image-gallery').value === '1' : false;
+    /* ------------------------------------------------------------------ */
+    /*  State                                                              */
+    /* ------------------------------------------------------------------ */
+
+    let isImageGallery = document.getElementById('filter-image-gallery')
+        ? document.getElementById('filter-image-gallery').value === '1'
+        : false;
+
     const path = window.location.pathname;
-    if (!isImageGallery) {
-        if (path === '/images/' || /\/images\/?$/.test(path)) {
-            isImageGallery = true;
-        }
+    if (!isImageGallery && (/\/images\/?$/.test(path) || path === '/images/')) {
+        isImageGallery = true;
     }
+
     const isAllSiteImages = isImageGallery && (path === '/images/' || path === '/images');
 
     function determineInitialType() {
-        const activeBtn = document.querySelector('.type-btn.active');
-        if (activeBtn?.dataset?.type) {
+        var activeBtn = document.querySelector('.type-btn.active');
+        if (activeBtn && activeBtn.dataset && activeBtn.dataset.type) {
             return activeBtn.dataset.type;
         }
-        
         if (isImageGallery) return 'images';
         return document.querySelector('.type-btn[data-type="all"]') ? 'all' : 'posts';
     }
 
-    let currentFilters = {
+    var currentFilters = {
         sort_by: 'random',
         post_type_filter: determineInitialType(),
         category: document.getElementById('filter-category') ? document.getElementById('filter-category').value : '',
         tag: document.getElementById('filter-tag') ? document.getElementById('filter-tag').value : '',
         search: document.getElementById('filter-search') ? document.getElementById('filter-search').value : ''
     };
-    
-    let currentPage = 1;
-    let loadedPostIds = [];
-    let loadedImageIds = [];
+
+    var currentPage = 1;
+    var loadedPostIds = [];
+    var loadedImageIds = [];
+
+    /* ------------------------------------------------------------------ */
+    /*  Gallery column management (absorbed from load-more.js)             */
+    /* ------------------------------------------------------------------ */
+
+    var galleryColumns = isImageGallery
+        ? Array.from(postGrid.querySelectorAll('.gallery-col'))
+        : [];
+
+    function desiredColCount() {
+        return SaraiGalleryUtils.getColumnCount();
+    }
+
+    function reflowColumnsTo(count) {
+        if (!isImageGallery) return;
+        var figs = Array.from(postGrid.querySelectorAll('figure.gallery-item'));
+        postGrid.innerHTML = '';
+        var cols = SaraiGalleryUtils.createColumns(count);
+        cols.forEach(function (col) { postGrid.appendChild(col); });
+        SaraiGalleryUtils.distributeFigures(figs, cols);
+        galleryColumns = cols;
+    }
+
+    // Ensure initial column count matches viewport.
+    if (isImageGallery && galleryColumns.length && galleryColumns.length !== desiredColCount()) {
+        reflowColumnsTo(desiredColCount());
+    }
+
+    // Debounced resize handler.
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+        if (!isImageGallery) return;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            var want = desiredColCount();
+            var current = postGrid.querySelectorAll('.gallery-col').length || 0;
+            if (current !== want) {
+                reflowColumnsTo(want);
+            }
+            galleryColumns = Array.from(postGrid.querySelectorAll('.gallery-col'));
+        }, 150);
+    });
+
+    function appendFiguresBalanced(figs) {
+        if (!isImageGallery) return false;
+        galleryColumns = Array.from(postGrid.querySelectorAll('.gallery-col'));
+
+        if (galleryColumns.length === 0) {
+            var want = desiredColCount();
+            var existingFigs = Array.from(postGrid.querySelectorAll('figure.gallery-item'));
+            postGrid.innerHTML = '';
+            var cols = SaraiGalleryUtils.createColumns(want);
+            cols.forEach(function (col) { postGrid.appendChild(col); });
+            galleryColumns = cols;
+            SaraiGalleryUtils.distributeFigures(existingFigs, galleryColumns);
+        }
+
+        SaraiGalleryUtils.distributeFigures(figs, galleryColumns);
+        return true;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Collect already-loaded content IDs                                 */
+    /* ------------------------------------------------------------------ */
 
     function initializeLoadedContent() {
         if (isImageGallery) {
-            loadedImageIds = Array.from(postGrid.querySelectorAll('.gallery-item img')).map(img => {
-                const match = img.className.match(/wp-image-(\d+)/);
+            loadedImageIds = Array.from(postGrid.querySelectorAll('.gallery-item img')).map(function (img) {
+                var match = img.className.match(/wp-image-(\d+)/);
                 return match ? match[1] : '';
-            }).filter(id => id !== '');
+            }).filter(function (id) { return id !== ''; });
         } else {
-            loadedPostIds = Array.from(postGrid.querySelectorAll('article')).map(post => post.id.replace('post-', ''));
+            loadedPostIds = Array.from(postGrid.querySelectorAll('article')).map(function (post) {
+                return post.id.replace('post-', '');
+            });
         }
     }
-    
+
+    /* ------------------------------------------------------------------ */
+    /*  UI helpers                                                         */
+    /* ------------------------------------------------------------------ */
+
     function updateFilterStates() {
-        document.querySelectorAll('.sort-btn').forEach(btn => {
+        document.querySelectorAll('.sort-btn').forEach(function (btn) {
             btn.classList.remove('active');
             if (btn.dataset.sort === currentFilters.sort_by) {
                 btn.classList.add('active');
             }
         });
-        
-        document.querySelectorAll('.type-btn').forEach(btn => {
+
+        document.querySelectorAll('.type-btn').forEach(function (btn) {
             btn.classList.remove('active');
             if (btn.dataset.type === currentFilters.post_type_filter) {
                 btn.classList.add('active');
@@ -71,230 +150,319 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-    
-    
-    /**
-     * Load posts or images via AJAX with current filter settings
-     * @param {number} page Page number
-     * @param {boolean} append Whether to append or replace
-     */
-    function loadPosts(page = 1, append = false) {
-        
-        const xhr = new XMLHttpRequest();
-        const data = new FormData();
 
-        const actionName = isImageGallery ? 'filter_images' : 'filter_posts';
-        data.append('action', actionName);
-        data.append('nonce', sarai_chinwag_ajax.nonce);
-        data.append('page', page);
-        data.append('sort_by', currentFilters.sort_by);
-        data.append('post_type_filter', currentFilters.post_type_filter);
-        
-        if (isImageGallery) {
-            data.append('loadedImages', JSON.stringify(append ? loadedImageIds : []));
-            
-            const loadMoreBtn = document.getElementById('load-more');
-            const hasAllSiteAttr = loadMoreBtn && loadMoreBtn.getAttribute('data-all-site') === 'true';
-            if (hasAllSiteAttr || isAllSiteImages) {
-                data.append('all_site', 'true');
+    function setLoadMoreState(text, disabled, visible) {
+        if (!loadMoreButton) return;
+        loadMoreButton.textContent = text;
+        loadMoreButton.disabled = disabled;
+        if (typeof visible !== 'undefined') {
+            loadMoreButton.style.display = visible ? 'block' : 'none';
+        }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  REST fetch (primary) with AJAX fallback                            */
+    /* ------------------------------------------------------------------ */
+
+    function buildInput(append) {
+        var input = {
+            sort_by: currentFilters.sort_by,
+            post_type_filter: currentFilters.post_type_filter,
+            loaded_ids: (isImageGallery ? loadedImageIds : loadedPostIds).map(Number)
+        };
+        if (!append) {
+            input.loaded_ids = [];
+        }
+        if (currentFilters.category) input.category = currentFilters.category;
+        if (currentFilters.tag) input.tag = currentFilters.tag;
+        if (currentFilters.search) input.search = currentFilters.search;
+        if (isImageGallery && isAllSiteImages) input.all_site = true;
+
+        // Also check load-more button data attributes for search.
+        if (!input.search && loadMoreButton && loadMoreButton.getAttribute('data-search')) {
+            input.search = loadMoreButton.getAttribute('data-search');
+        }
+
+        return input;
+    }
+
+    function fetchViaRest(append) {
+        var abilityId = isImageGallery ? 'sarai-chinwag/query-images' : 'sarai-chinwag/query-posts';
+        var url = sarai_chinwag_ajax.restUrl + encodeURIComponent(abilityId) + '/run';
+
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': sarai_chinwag_ajax.nonce
+            },
+            body: JSON.stringify(buildInput(append))
+        })
+        .then(function (r) {
+            if (!r.ok) throw new Error('REST ' + r.status);
+            return r.json();
+        })
+        .then(function (data) {
+            var output = data.output || data;
+            return { html: output.html || '', count: output.count || 0 };
+        });
+    }
+
+    function fetchViaAjax(append) {
+        return new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            var data = new FormData();
+            var input = buildInput(append);
+
+            data.append('action', isImageGallery ? 'filter_images' : 'filter_posts');
+            data.append('nonce', sarai_chinwag_ajax.ajax_nonce || sarai_chinwag_ajax.nonce);
+            data.append('page', currentPage + (append ? 1 : 0));
+            data.append('sort_by', input.sort_by);
+            data.append('post_type_filter', input.post_type_filter);
+
+            if (isImageGallery) {
+                data.append('loadedImages', JSON.stringify(input.loaded_ids.map(String)));
+                if (input.all_site) data.append('all_site', 'true');
+            } else {
+                data.append('loadedPosts', JSON.stringify(input.loaded_ids.map(String)));
             }
-        } else {
-            data.append('loadedPosts', JSON.stringify(append ? loadedPostIds : []));
-        }
 
-        if (currentFilters.category) {
-            data.append('category', currentFilters.category);
-        }
-        if (currentFilters.tag) {
-            data.append('tag', currentFilters.tag);
-        }
-        if (currentFilters.search) {
-            data.append('search', currentFilters.search);
-        }
+            if (input.category) data.append('category', input.category);
+            if (input.tag) data.append('tag', input.tag);
+            if (input.search) data.append('search', input.search);
 
-        xhr.open('POST', sarai_chinwag_ajax.ajaxurl, true);
-        
-        xhr.onload = function () {
-            
-            if (xhr.status >= 200 && xhr.status < 400) {
-                const response = xhr.responseText.trim();
-                const noContentMessages = isImageGallery ? 
-                    ['No images found', 'No more images'] : 
-                    ['No posts found', 'No more posts'];
-                
-                const hasNoContent = response === '0' || 
-                    noContentMessages.some(msg => response.includes(msg));
-                
-                if (hasNoContent) {
-                    if (append) {
-                        if (loadMoreButton) {
-                            loadMoreButton.textContent = isImageGallery ? 'No more images' : 'No more posts';
-                            loadMoreButton.disabled = true;
-                        }
+            xhr.open('POST', sarai_chinwag_ajax.ajaxurl, true);
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    var html = xhr.responseText.trim();
+                    var noContent = html === '0' || html === '' ||
+                        html.indexOf('No images found') !== -1 ||
+                        html.indexOf('No more images') !== -1 ||
+                        html.indexOf('No posts found') !== -1 ||
+                        html.indexOf('No more posts') !== -1;
+
+                    if (noContent) {
+                        resolve({ html: '', count: 0 });
                     } else {
-                                const contentType = isImageGallery ? 'images' : 'posts';
-                        SaraiGalleryUtils.getNoContentMessage(contentType).then(template => {
-                            postGrid.innerHTML = template;
-                            if (loadMoreButton) {
-                                loadMoreButton.style.display = 'none';
-                            }
-                        }).catch(() => {
-                            const fallback = isImageGallery ? 'No images found.' : 'No posts found.';
-                            postGrid.innerHTML = `<p class="no-content-message">${fallback}</p>`;
-                            if (loadMoreButton) {
-                                loadMoreButton.style.display = 'none';
-                            }
-                        });
+                        var countPattern = isImageGallery
+                            ? /<figure[^>]*class="[^"]*gallery-item/g
+                            : /<article/g;
+                        var matches = html.match(countPattern) || [];
+                        resolve({ html: html, count: matches.length });
                     }
                 } else {
-                    if (isImageGallery) {
-                        const tmp = document.createElement('div');
-                        tmp.innerHTML = response;
-                        const newFigs = Array.from(tmp.querySelectorAll('figure.gallery-item'));
-
-                        if (!append) {
-                            postGrid.innerHTML = '';
-                            const colCount = SaraiGalleryUtils.getColumnCount();
-                            const columns = SaraiGalleryUtils.createColumns(colCount);
-                            columns.forEach(col => postGrid.appendChild(col));
-                            
-                            currentPage = 1;
-                            if (loadMoreButton) {
-                                loadMoreButton.style.display = 'block';
-                                loadMoreButton.disabled = false;
-                                loadMoreButton.textContent = 'Load More';
-                            }
-                        }
-
-                        const cols = Array.from(postGrid.querySelectorAll('.gallery-col'));
-                        SaraiGalleryUtils.distributeFigures(newFigs, cols);
-                    } else {
-                        if (append) {
-                                postGrid.insertAdjacentHTML('beforeend', response);
-                        } else {
-                                postGrid.innerHTML = response;
-                            currentPage = 1;
-                            if (loadMoreButton) {
-                                loadMoreButton.style.display = 'block';
-                                loadMoreButton.disabled = false;
-                                loadMoreButton.textContent = 'Load More';
-                            }
-                        }
-                    }
-
-                    if (isImageGallery) {
-                        const newImages = postGrid.querySelectorAll('.gallery-item img');
-                        loadedImageIds = Array.from(newImages).map(img => {
-                            const match = img.className.match(/wp-image-(\d+)/);
-                            return match ? match[1] : '';
-                        }).filter(id => id !== '');
-                        
-                        const loadedImagesCount = (response.match(/<figure[^>]*class=\"[^\"]*gallery-item/g) || []).length;
-                        if (loadMoreButton && loadedImagesCount < sarai_chinwag_ajax.posts_per_page) {
-                            loadMoreButton.textContent = 'No more images';
-                            loadMoreButton.disabled = true;
-                        }
-                    } else {
-                        const newPosts = postGrid.querySelectorAll('article');
-                        loadedPostIds = Array.from(newPosts).map(post => post.id.replace('post-', ''));
-                        
-                        const loadedPostsCount = (response.match(/<article/g) || []).length;
-                        if (loadMoreButton && loadedPostsCount < sarai_chinwag_ajax.posts_per_page) {
-                            loadMoreButton.textContent = 'No more posts';
-                            loadMoreButton.disabled = true;
-                        }
-                    }
+                    reject(new Error('AJAX ' + xhr.status));
                 }
-            } else {
-                console.error('Filter request failed: ' + xhr.statusText);
-            }
-        };
-
-        xhr.onerror = function () {
-            console.error('Filter request failed');
-        };
-
-        xhr.send(data);
+            };
+            xhr.onerror = function () { reject(new Error('AJAX network error')); };
+            xhr.send(data);
+        });
     }
-    
+
+    /* ------------------------------------------------------------------ */
+    /*  Render response into grid                                          */
+    /* ------------------------------------------------------------------ */
+
+    function handleResponse(html, count, append) {
+        var perPage = parseInt(sarai_chinwag_ajax.posts_per_page, 10) || 10;
+
+        if (count === 0) {
+            if (append) {
+                setLoadMoreState(isImageGallery ? 'No more images' : 'No more', true);
+            } else {
+                var contentType = isImageGallery ? 'images' : 'posts';
+                SaraiGalleryUtils.getNoContentMessage(contentType).then(function (template) {
+                    postGrid.innerHTML = template;
+                    setLoadMoreState('', true, false);
+                }).catch(function () {
+                    var fallback = isImageGallery ? 'No images found.' : 'No posts found.';
+                    postGrid.innerHTML = '<p class="no-content-message">' + fallback + '</p>';
+                    setLoadMoreState('', true, false);
+                });
+            }
+            return;
+        }
+
+        if (isImageGallery) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            var newFigs = Array.from(tmp.querySelectorAll('figure.gallery-item'));
+            if (newFigs.length === 0) {
+                newFigs = Array.from(tmp.querySelectorAll('figure'));
+            }
+
+            if (!append) {
+                postGrid.innerHTML = '';
+                var colCount = SaraiGalleryUtils.getColumnCount();
+                var columns = SaraiGalleryUtils.createColumns(colCount);
+                columns.forEach(function (col) { postGrid.appendChild(col); });
+                galleryColumns = columns;
+            }
+
+            appendFiguresBalanced(newFigs);
+
+            // Update loaded IDs.
+            loadedImageIds = Array.from(postGrid.querySelectorAll('.gallery-item img')).map(function (img) {
+                var match = img.className.match(/wp-image-(\d+)/);
+                return match ? match[1] : '';
+            }).filter(function (id) { return id !== ''; });
+        } else {
+            if (append) {
+                postGrid.insertAdjacentHTML('beforeend', html);
+            } else {
+                postGrid.innerHTML = html;
+            }
+
+            loadedPostIds = Array.from(postGrid.querySelectorAll('article')).map(function (post) {
+                return post.id.replace('post-', '');
+            });
+        }
+
+        if (append) {
+            currentPage++;
+        } else {
+            currentPage = 1;
+        }
+
+        if (count < perPage) {
+            setLoadMoreState(isImageGallery ? 'No more images' : 'No more', true, true);
+        } else {
+            setLoadMoreState('Load More', false, true);
+        }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Fetch dispatcher: REST primary, AJAX fallback                      */
+    /* ------------------------------------------------------------------ */
+
+    function loadContent(append) {
+        if (loadMoreButton) {
+            loadMoreButton.disabled = true;
+            loadMoreButton.textContent = 'Loading...';
+        }
+
+        fetchViaRest(append)
+            .then(function (result) {
+                handleResponse(result.html, result.count, append);
+            })
+            .catch(function (err) {
+                console.warn('REST failed, falling back to AJAX:', err);
+                fetchViaAjax(append)
+                    .then(function (result) {
+                        handleResponse(result.html, result.count, append);
+                    })
+                    .catch(function (ajaxErr) {
+                        console.error('Both REST and AJAX failed:', ajaxErr);
+                        if (loadMoreButton) {
+                            loadMoreButton.disabled = false;
+                            loadMoreButton.textContent = 'Load More';
+                        }
+                    });
+            });
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Filter controls                                                    */
+    /* ------------------------------------------------------------------ */
+
     function applyFilters() {
         currentPage = 1;
         updateFilterStates();
-        loadPosts(1, false);
+        loadContent(false);
     }
-    
-    document.querySelectorAll('.sort-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const sortValue = this.dataset.sort;
-            
-            if (currentFilters.sort_by !== sortValue) {
-                currentFilters.sort_by = sortValue;
-                applyFilters();
-            }
+
+    if (filterBar) {
+        // Sort buttons.
+        document.querySelectorAll('.sort-btn').forEach(function (button) {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                var sortValue = this.dataset.sort;
+                if (currentFilters.sort_by !== sortValue) {
+                    currentFilters.sort_by = sortValue;
+                    applyFilters();
+                }
+            });
         });
-    });
-    
+
+        // Type buttons.
+        document.querySelectorAll('.type-btn').forEach(function (button) {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                var typeValue = this.dataset.type;
+
+                if (typeValue === 'images') {
+                    navigateToImages();
+                } else {
+                    handleFilterOrNavigate(typeValue);
+                }
+            });
+        });
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Navigation helpers (image mode ↔ post mode)                        */
+    /* ------------------------------------------------------------------ */
+
     function navigateToImages() {
-        const currentUrl = window.location.pathname;
-        const currentSearch = window.location.search;
-        
-        if (currentUrl.includes('/images')) return;
-        
-        if (currentSearch && currentSearch.includes('s=')) {
+        var currentUrl = window.location.pathname;
+        var currentSearch = window.location.search;
+
+        if (currentUrl.indexOf('/images') !== -1) return;
+
+        if (currentSearch && currentSearch.indexOf('s=') !== -1) {
             window.location.href = currentUrl + 'images/' + currentSearch;
             return;
         }
-        
-        const imageUrl = (currentUrl === '/' || currentUrl.match(/^\/$/)) 
-            ? '/images/' 
+
+        var imageUrl = (currentUrl === '/' || currentUrl.match(/^\/$/))
+            ? '/images/'
             : currentUrl.replace(/\/$/, '') + '/images/';
         window.location.href = imageUrl;
     }
-    
+
     function navigateFromImages() {
-        const currentUrl = window.location.pathname;
-        const currentSearch = window.location.search;
-        
-        if (!currentUrl.includes('/images')) return false;
-        
-        if (currentSearch && currentSearch.includes('s=')) {
-            const postUrl = currentUrl.replace('/images/', '/').replace('/images', '/');
+        var currentUrl = window.location.pathname;
+        var currentSearch = window.location.search;
+
+        if (currentUrl.indexOf('/images') === -1) return false;
+
+        if (currentSearch && currentSearch.indexOf('s=') !== -1) {
+            var postUrl = currentUrl.replace('/images/', '/').replace('/images', '/');
             window.location.href = postUrl + currentSearch;
             return true;
         }
-        
-        const postUrl = (currentUrl === '/images/' || currentUrl.match(/^\/images\/$/))
+
+        var postUrl2 = (currentUrl === '/images/' || currentUrl.match(/^\/images\/$/))
             ? '/'
             : currentUrl.replace('/images/', '/').replace('/images', '/');
-        window.location.href = postUrl;
+        window.location.href = postUrl2;
         return true;
     }
-    
+
     function handleFilterOrNavigate(typeValue) {
         if (navigateFromImages()) return;
-        
+
         if (currentFilters.post_type_filter !== typeValue) {
             currentFilters.post_type_filter = typeValue;
             applyFilters();
         }
     }
 
-    document.querySelectorAll('.type-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
+    /* ------------------------------------------------------------------ */
+    /*  Load More button                                                   */
+    /* ------------------------------------------------------------------ */
+
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', function (e) {
             e.preventDefault();
-            const typeValue = this.dataset.type;
-            
-            if (typeValue === 'images') {
-                navigateToImages();
-            } else {
-                handleFilterOrNavigate(typeValue);
-            }
+            loadContent(true);
         });
-    });
-    
-    
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Init                                                               */
+    /* ------------------------------------------------------------------ */
+
     initializeLoadedContent();
     updateFilterStates();
-    
 });

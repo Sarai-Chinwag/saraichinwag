@@ -27,12 +27,12 @@ function sarai_chinwag_enqueue_filter_scripts() {
     if (is_home() || is_archive() || is_search() || $is_image_gallery) {
         wp_enqueue_script('sarai-chinwag-filter-bar', get_template_directory_uri() . '/js/filter-bar.js', array('sarai-chinwag-gallery-utils'), filemtime(get_template_directory() . '/js/filter-bar.js'), true);
         wp_localize_script('sarai-chinwag-filter-bar', 'sarai_chinwag_ajax', array(
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('filter_posts_nonce'),
-            'posts_per_page' => get_option('posts_per_page', 10)
+            'restUrl'        => rest_url('wp-abilities/v1/abilities/'),
+            'nonce'          => wp_create_nonce('wp_rest'),
+            'ajaxurl'        => admin_url('admin-ajax.php'),
+            'ajax_nonce'     => wp_create_nonce('filter_posts_nonce'),
+            'posts_per_page' => get_option('posts_per_page', 10),
         ));
-
-        wp_enqueue_script('sarai-chinwag-load-more', get_template_directory_uri() . '/js/load-more.js', array('sarai-chinwag-filter-bar'), filemtime(get_template_directory() . '/js/load-more.js'), true);
     }
 }
 add_action('wp_enqueue_scripts', 'sarai_chinwag_enqueue_filter_scripts');
@@ -106,101 +106,17 @@ function sarai_chinwag_has_both_posts_and_recipes() {
 function sarai_chinwag_filter_posts() {
     check_ajax_referer('filter_posts_nonce', 'nonce');
 
-    // Get sort parameter
-    $sort_by = isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'random';
-    
-    // Get post type filters
-    $post_type_filter = isset($_POST['post_type_filter']) ? sanitize_text_field($_POST['post_type_filter']) : 'all';
-    
-    // Determine post types to query
-    $post_types = array();
-    if ($post_type_filter === 'posts') {
-        $post_types = array('post');
-    } elseif ($post_type_filter === 'recipes') {
-        $post_types = array('recipe');
-    } elseif ($post_type_filter === 'quizzes') {
-        $post_types = array('quiz');
-    } else { // default and "all"
-        $post_types = array('post');
-        if (!sarai_chinwag_recipes_disabled()) {
-            $post_types[] = 'recipe';
-        }
-        if (!sarai_chinwag_quizzes_disabled()) {
-            $post_types[] = 'quiz';
-        }
-    }
-
-    $loaded_posts = isset($_POST['loadedPosts']) ? json_decode(stripslashes($_POST['loadedPosts']), true) : array();
-    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
-    $tag = isset($_POST['tag']) ? sanitize_text_field($_POST['tag']) : '';
-    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-
-    // Retrieve the posts per page setting from the admin
-    $posts_per_page = get_option('posts_per_page', 10);
-
-    // Build query arguments based on sort type
-    $args = array(
-        'post_type' => $post_types,
-        'posts_per_page' => $posts_per_page,
-        'post_status' => 'publish',
-        'post__not_in' => $loaded_posts,
+    $input = array(
+        'sort_by'          => isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'random',
+        'post_type_filter' => isset($_POST['post_type_filter']) ? sanitize_text_field($_POST['post_type_filter']) : 'all',
+        'loaded_ids'       => isset($_POST['loadedPosts']) ? array_map('absint', json_decode(stripslashes($_POST['loadedPosts']), true)) : array(),
+        'category'         => isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '',
+        'tag'              => isset($_POST['tag']) ? sanitize_text_field($_POST['tag']) : '',
+        'search'           => isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '',
     );
 
-    // Add category/tag/search constraints
-    if ($category) {
-        $args['category_name'] = $category;
-    }
-    if ($tag) {
-        $args['tag'] = $tag;
-    }
-    if ($search) {
-        $args['s'] = $search;
-    }
-
-    // Apply sorting based on sort_by parameter
-    switch ($sort_by) {
-        case 'popular':
-            $args['meta_key'] = '_post_views';
-            $args['orderby'] = 'meta_value_num date';
-            $args['order'] = 'DESC';
-            $args['meta_query'] = array(
-                array(
-                    'key' => '_post_views',
-                    'compare' => 'EXISTS'
-                )
-            );
-            break;
-            
-        case 'recent':
-            $args['orderby'] = 'date';
-            $args['order'] = 'DESC';
-            break;
-            
-        case 'oldest':
-            $args['orderby'] = 'date';
-            $args['order'] = 'ASC';
-            break;
-            
-        case 'random':
-        default:
-            $args['orderby'] = 'rand';
-            break;
-    }
-
-    // Execute the query
-    $query = new WP_Query($args);
-
-    if ($query->have_posts()) {
-        while ($query->have_posts()) : $query->the_post();
-            echo '<article id="post-' . get_the_ID() . '" class="' . join(' ', get_post_class()) . '">';
-            get_template_part('template-parts/content', get_post_type());
-            echo '</article>';
-        endwhile;
-        wp_reset_postdata();
-    } else {
-        echo '<p>' . esc_html__('No posts found.', 'sarai-chinwag') . '</p>';
-    }
-
+    $result = sarai_chinwag_ability_query_posts($input);
+    echo $result['html'] ?: '<p>' . esc_html__('No posts found.', 'sarai-chinwag') . '</p>';
     wp_die();
 }
 add_action('wp_ajax_filter_posts', 'sarai_chinwag_filter_posts');
@@ -219,59 +135,18 @@ add_action('wp_ajax_nopriv_filter_posts', 'sarai_chinwag_filter_posts');
 function sarai_chinwag_filter_images() {
     check_ajax_referer('filter_posts_nonce', 'nonce');
 
-    // Get sort parameter
-    $sort_by = isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'random';
-    
-    // Get post type filters
-    $post_type_filter = isset($_POST['post_type_filter']) ? sanitize_text_field($_POST['post_type_filter']) : 'all';
-    
-    $loaded_images = isset($_POST['loadedImages']) ? json_decode(stripslashes($_POST['loadedImages']), true) : array();
-    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
-    $tag = isset($_POST['tag']) ? sanitize_text_field($_POST['tag']) : '';
-    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    $input = array(
+        'sort_by'          => isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'random',
+        'post_type_filter' => isset($_POST['post_type_filter']) ? sanitize_text_field($_POST['post_type_filter']) : 'all',
+        'loaded_ids'       => isset($_POST['loadedImages']) ? array_map('absint', json_decode(stripslashes($_POST['loadedImages']), true)) : array(),
+        'category'         => isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '',
+        'tag'              => isset($_POST['tag']) ? sanitize_text_field($_POST['tag']) : '',
+        'search'           => isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '',
+        'all_site'         => isset($_POST['all_site']) && $_POST['all_site'] === 'true',
+    );
 
-    // Retrieve the posts per page setting from the admin (batch size)
-    $posts_per_page = get_option('posts_per_page', 10);
-
-    // Check if this is a site-wide image gallery request
-    $is_all_site = isset($_POST['all_site']) && $_POST['all_site'] === 'true';
-    
-    if ($is_all_site) {
-        // Site-wide image gallery
-        $images = sarai_chinwag_get_filtered_all_site_images($sort_by, $post_type_filter, $loaded_images, $posts_per_page);
-    } elseif ($search) {
-        // Search image gallery
-        $images = sarai_chinwag_get_filtered_search_images($search, $sort_by, $post_type_filter, $loaded_images, $posts_per_page);
-    } else {
-        // Get current term information
-        $term = null;
-        $term_type = '';
-        
-        if ($category) {
-            $term = get_term_by('slug', $category, 'category');
-            $term_type = 'category';
-        } elseif ($tag) {
-            $term = get_term_by('slug', $tag, 'post_tag');
-            $term_type = 'post_tag';
-        }
-        
-        if (!$term) {
-            echo '<p>' . esc_html__('No images found.', 'sarai-chinwag') . '</p>';
-            wp_die();
-        }
-        
-        // Get images from the term with sorting
-        $images = sarai_chinwag_get_filtered_term_images($term->term_id, $term_type, $sort_by, $post_type_filter, $loaded_images, $posts_per_page);
-    }
-    
-    if (empty($images)) {
-        echo '<p>' . esc_html__('No more images found.', 'sarai-chinwag') . '</p>';
-    } else {
-        foreach ($images as $index => $image) {
-            include(get_template_directory() . '/template-parts/gallery-item.php');
-        }
-    }
-
+    $result = sarai_chinwag_ability_query_images($input);
+    echo $result['html'];
     wp_die();
 }
 add_action('wp_ajax_filter_images', 'sarai_chinwag_filter_images');

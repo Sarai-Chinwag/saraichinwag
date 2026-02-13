@@ -94,6 +94,7 @@ require_once $queries_dir . '/random-queries.php';
 require_once $queries_dir . '/related-posts.php';
 require_once $queries_dir . '/sorting-archives.php';
 
+require_once get_template_directory() . '/inc/abilities/image-mode-abilities.php';
 require_once get_template_directory() . '/inc/bing-index-now.php';
 require_once get_template_directory() . '/inc/yoast-stuff.php';
 
