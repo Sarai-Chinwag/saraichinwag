@@ -40,7 +40,7 @@ function sarai_chinwag_handle_view_track($request) {
     $post_id = $request->get_param('post_id');
     
     $post = get_post($post_id);
-    if (!$post || !in_array($post->post_type, array('post', 'recipe'), true)) {
+    if (!$post || !in_array($post->post_type, array('post', 'recipe', 'quiz'), true)) {
         return new WP_REST_Response(array('success' => false), 400);
     }
     
@@ -60,7 +60,7 @@ function sarai_chinwag_handle_view_track($request) {
  * Enqueue view counter script on single posts
  */
 function sarai_chinwag_enqueue_view_counter() {
-    if (!is_singular(array('post', 'recipe'))) {
+    if (!is_singular(array('post', 'recipe', 'quiz'))) {
         return;
     }
     
@@ -164,7 +164,7 @@ function sarai_chinwag_initialize_post_views() {
         FROM {$wpdb->posts} p 
         LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_post_views'
         WHERE p.post_status = 'publish' 
-        AND p.post_type IN ('post', 'recipe')
+        AND p.post_type IN ('post', 'recipe', 'quiz')
         AND pm.meta_id IS NULL
         LIMIT 100
     ");

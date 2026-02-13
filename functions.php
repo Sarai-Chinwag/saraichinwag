@@ -77,6 +77,7 @@ require_once get_template_directory() . '/inc/admin/customizer.php';
 require_once get_template_directory() . '/inc/core/assets.php';
 
 require_once get_template_directory() . '/inc/recipes.php';
+require_once get_template_directory() . '/inc/quizzes.php';
 require_once get_template_directory() . '/inc/ratings.php';
 
 $contact_dir = get_template_directory() . '/inc/contact';
@@ -139,6 +140,16 @@ add_filter('the_content', function($content){
 function sarai_chinwag_recipes_disabled() {
     $disabled = get_option('sarai_chinwag_disable_recipes', false);
     return apply_filters('sarai_chinwag_recipes_disabled', $disabled);
+}
+
+/**
+ * Check if quiz functionality is disabled
+ *
+ * @return bool True if quizzes are disabled, false if enabled
+ */
+function sarai_chinwag_quizzes_disabled() {
+    $disabled = get_option('sarai_chinwag_disable_quizzes', false);
+    return apply_filters('sarai_chinwag_quizzes_disabled', $disabled);
 }
 
 
@@ -255,7 +266,7 @@ add_action('wp_head', 'sarai_chinwag_set_content_language_header', 1);
  * Shows primary category (blue) and up to 3 tags (pink) on singular content
  */
 function sarai_chinwag_post_badges() {
-    if (!is_singular(array('post', 'recipe'))) {
+    if (!is_singular(array('post', 'recipe', 'quiz'))) {
         return;
     }
     
@@ -346,7 +357,7 @@ function sarai_chinwag_archive_breadcrumbs() {
  * Display gallery discovery badges with cached image counts for related categories/tags
  */
 function sarai_chinwag_gallery_discovery_badges() {
-    if (!is_singular(array('post', 'recipe'))) {
+    if (!is_singular(array('post', 'recipe', 'quiz'))) {
         return;
     }
     

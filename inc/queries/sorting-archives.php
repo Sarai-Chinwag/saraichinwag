@@ -118,10 +118,15 @@ function sarai_chinwag_filter_posts() {
         $post_types = array('post');
     } elseif ($post_type_filter === 'recipes') {
         $post_types = array('recipe');
+    } elseif ($post_type_filter === 'quizzes') {
+        $post_types = array('quiz');
     } else { // default and "all"
         $post_types = array('post');
         if (!sarai_chinwag_recipes_disabled()) {
             $post_types[] = 'recipe';
+        }
+        if (!sarai_chinwag_quizzes_disabled()) {
+            $post_types[] = 'quiz';
         }
     }
 

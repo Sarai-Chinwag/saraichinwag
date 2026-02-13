@@ -10,6 +10,9 @@ function sarai_chinwag_random_home_archive_search_query( $query ) {
         if ( !sarai_chinwag_recipes_disabled() ) {
             $post_types[] = 'recipe';
         }
+        if ( !sarai_chinwag_quizzes_disabled() ) {
+            $post_types[] = 'quiz';
+        }
         
         $query->set( 'post_type', $post_types );
         

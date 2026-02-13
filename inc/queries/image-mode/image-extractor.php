@@ -39,7 +39,7 @@ function sarai_chinwag_extract_images_from_term($term_id, $term_type, $limit = 3
     $query_limit = $is_count_request ? -1 : 500;
     
     $posts = get_posts(array(
-        'post_type' => array('post', 'recipe'),
+        'post_type' => array('post', 'recipe', 'quiz'),
         'post_status' => 'publish',
         'numberposts' => $query_limit,
         'orderby' => $is_count_request ? 'ID' : 'rand',
@@ -280,6 +280,13 @@ function sarai_chinwag_get_filtered_term_images($term_id, $term_type, $sort_by =
             $post_types[] = 'recipe';
         }
     }
+    if (!sarai_chinwag_quizzes_disabled()) {
+        if ($post_type_filter === 'quizzes') {
+            $post_types = array('quiz');
+        } elseif ($post_type_filter === 'all') {
+            $post_types[] = 'quiz';
+        }
+    }
     
     $post_args = array(
         'post_type' => $post_types,
@@ -409,7 +416,7 @@ function sarai_chinwag_get_all_site_images($limit = 30) {
             continue;
         }
         
-        if (!in_array($parent_post->post_type, array('post', 'recipe'))) {
+        if (!in_array($parent_post->post_type, array('post', 'recipe', 'quiz'))) {
             continue;
         }
         
@@ -453,6 +460,13 @@ function sarai_chinwag_get_filtered_all_site_images($sort_by = 'random', $post_t
             $post_types = array('recipe');
         } elseif ($post_type_filter === 'all') {
             $post_types[] = 'recipe';
+        }
+    }
+    if (!sarai_chinwag_quizzes_disabled()) {
+        if ($post_type_filter === 'quizzes') {
+            $post_types = array('quiz');
+        } elseif ($post_type_filter === 'all') {
+            $post_types[] = 'quiz';
         }
     }
     

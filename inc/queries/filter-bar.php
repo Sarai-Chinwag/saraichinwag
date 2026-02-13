@@ -19,11 +19,18 @@ function sarai_chinwag_display_filter_bar() {
 }
 
 function sarai_chinwag_show_type_filters() {
-    if (sarai_chinwag_recipes_disabled()) {
-        return false;
+    // Show filters if there are multiple post types available
+    $available_types = array('post');
+    
+    if (!sarai_chinwag_recipes_disabled()) {
+        $available_types[] = 'recipe';
     }
     
-    return sarai_chinwag_has_both_posts_and_recipes();
+    if (!sarai_chinwag_quizzes_disabled()) {
+        $available_types[] = 'quiz';
+    }
+    
+    return count($available_types) > 1;
 }
 
 add_action('before_post_grid', 'sarai_chinwag_display_filter_bar');

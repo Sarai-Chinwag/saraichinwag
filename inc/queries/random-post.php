@@ -46,12 +46,42 @@ function sarai_chinwag_redirect_to_random_recipe() {
 }
 add_action('template_redirect', 'sarai_chinwag_redirect_to_random_recipe');
 
+function sarai_chinwag_redirect_to_random_quiz() {
+    // Skip if quizzes are disabled
+    if (sarai_chinwag_quizzes_disabled()) {
+        // Redirect to random post instead
+        wp_redirect(home_url('/random-post'));
+        exit;
+    }
+    
+    if (is_page('random-quiz')) {
+        // Use cached random quiz ID for high performance
+        $random_quiz_id = sarai_chinwag_get_cached_random_post_id('quiz');
+        
+        if ($random_quiz_id) {
+            $permalink = get_permalink($random_quiz_id);
+            if ($permalink) {
+                wp_redirect($permalink);
+                exit;
+            }
+        }
+        
+        // Fallback to random post if no quiz found
+        wp_redirect(home_url('/random-post'));
+        exit;
+    }
+}
+add_action('template_redirect', 'sarai_chinwag_redirect_to_random_quiz');
+
 function sarai_chinwag_redirect_to_random_all() {
     if (is_page('random-all')) {
         // Build array of possible post types
         $post_types = array('post');
         if (!sarai_chinwag_recipes_disabled()) {
             $post_types[] = 'recipe';
+        }
+        if (!sarai_chinwag_quizzes_disabled()) {
+            $post_types[] = 'quiz';
         }
         
         // Randomly select a post type first, then get random post from that type
