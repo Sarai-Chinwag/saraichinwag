@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function fetchViaRest(append) {
         var abilityId = isImageGallery ? 'sarai-chinwag/query-images' : 'sarai-chinwag/query-posts';
-        var url = sarai_chinwag_ajax.restUrl + encodeURIComponent(abilityId) + '/run';
+        var url = sarai_chinwag_ajax.restUrl + abilityId + '/run';
 
         return fetch(url, {
             method: 'POST',
@@ -196,13 +196,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 'Content-Type': 'application/json',
                 'X-WP-Nonce': sarai_chinwag_ajax.nonce
             },
-            body: JSON.stringify(buildInput(append))
+            body: JSON.stringify({ input: buildInput(append) })
         })
         .then(function (r) {
             if (!r.ok) throw new Error('REST ' + r.status);
             return r.json();
         })
         .then(function (data) {
+            // Response may be {output: {html, count}} or {html, count} directly
             var output = data.output || data;
             return { html: output.html || '', count: output.count || 0 };
         });
