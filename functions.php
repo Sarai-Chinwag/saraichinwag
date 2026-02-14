@@ -346,6 +346,11 @@ function sarai_chinwag_archive_breadcrumbs() {
         $author = get_queried_object();
         $breadcrumbs[] = __('Author', 'sarai-chinwag');
         $breadcrumbs[] = esc_html($author->display_name);
+    } elseif (is_post_type_archive()) {
+        $post_type_obj = get_queried_object();
+        if ($post_type_obj) {
+            $breadcrumbs[] = esc_html($post_type_obj->label);
+        }
     } elseif (is_date()) {
         $breadcrumbs[] = __('Archives', 'sarai-chinwag');
         if (is_year()) {
