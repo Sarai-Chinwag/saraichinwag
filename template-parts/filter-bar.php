@@ -38,37 +38,39 @@ $search_term = is_search() ? get_search_query() : '';
     </div>
     
     <?php 
-    $has_both_post_types = !sarai_chinwag_recipes_disabled() && sarai_chinwag_has_both_posts_and_recipes();
+    $has_recipes = !sarai_chinwag_recipes_disabled();
+    $has_quizzes = !sarai_chinwag_quizzes_disabled();
+    $has_multiple_types = $has_recipes || $has_quizzes;
     $can_show_mode_toggle = is_category() || is_tag() || is_home() || is_search() || $is_image_gallery;
-    
-    $show_type_filters = $has_both_post_types || $can_show_mode_toggle;
-    
+
+    $show_type_filters = $has_multiple_types || $can_show_mode_toggle;
+
     if ($show_type_filters) :
     ?>
     <div class="filter-section type-filters">
         <div class="filter-buttons">
-            <?php 
-            if ($has_both_post_types) : 
-            ?>
+            <?php if ($has_multiple_types) : ?>
             <button class="filter-btn type-btn <?php echo (!$is_image_gallery) ? 'active' : ''; ?>" data-type="all">
                 <?php _e('All', 'sarai-chinwag'); ?>
             </button>
-            <button class="filter-btn type-btn" data-type="posts">
+            <?php endif; ?>
+            <button class="filter-btn type-btn <?php echo (!$has_multiple_types && !$is_image_gallery) ? 'active' : ''; ?>" data-type="posts">
                 <?php _e('Posts', 'sarai-chinwag'); ?>
             </button>
+            <?php if ($has_recipes) : ?>
             <button class="filter-btn type-btn" data-type="recipes">
                 <?php _e('Recipes', 'sarai-chinwag'); ?>
             </button>
-            <?php else : ?>
-            <button class="filter-btn type-btn <?php echo $is_image_gallery ? '' : 'active'; ?>" data-type="posts">
-                <?php _e('Posts', 'sarai-chinwag'); ?>
+            <?php endif; ?>
+            <?php if ($has_quizzes) : ?>
+            <button class="filter-btn type-btn" data-type="quizzes">
+                <?php _e('Quizzes', 'sarai-chinwag'); ?>
             </button>
             <?php endif; ?>
-            
             <?php if ($can_show_mode_toggle) : ?>
-                <button class="filter-btn type-btn <?php echo $is_image_gallery ? 'active' : ''; ?>" data-type="images">
-                    <?php _e('Images', 'sarai-chinwag'); ?>
-                </button>
+            <button class="filter-btn type-btn <?php echo $is_image_gallery ? 'active' : ''; ?>" data-type="images">
+                <?php _e('Images', 'sarai-chinwag'); ?>
+            </button>
             <?php endif; ?>
         </div>
     </div>
@@ -81,4 +83,3 @@ $search_term = is_search() ? get_search_query() : '';
     <input type="hidden" id="filter-image-gallery" value="<?php echo $is_image_gallery ? '1' : '0'; ?>">
     </div>
 </div>
-

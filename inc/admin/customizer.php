@@ -34,6 +34,20 @@ function sarai_chinwag_customize_register($wp_customize) {
         'description' => __('Choose a display font for headings (h1-h6).', 'sarai-chinwag'),
     ));
 
+    $wp_customize->add_setting('sarai_chinwag_site_title_font', array(
+        'default' => 'Gluten',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport' => 'postMessage',
+    ));
+
+    $wp_customize->add_control('sarai_chinwag_site_title_font', array(
+        'label' => __('Site Title Font', 'sarai-chinwag'),
+        'section' => 'sarai_chinwag_typography',
+        'type' => 'select',
+        'choices' => sarai_chinwag_get_google_fonts('display'),
+        'description' => __('Choose a font for the site title. Defaults to Gluten.', 'sarai-chinwag'),
+    ));
+
     $wp_customize->add_setting('sarai_chinwag_heading_font_size', array(
         'default' => 50,
         'sanitize_callback' => 'absint',
@@ -218,7 +232,8 @@ function sarai_chinwag_get_google_fonts($type = '') {
 function sarai_chinwag_get_fonts_to_load() {
     $fonts_to_check = array(
         get_theme_mod('sarai_chinwag_heading_font', 'System Fonts'),
-        get_theme_mod('sarai_chinwag_body_font', 'System Fonts')
+        get_theme_mod('sarai_chinwag_body_font', 'System Fonts'),
+        get_theme_mod('sarai_chinwag_site_title_font', 'Gluten')
     );
     
     $fonts_to_load = array();
@@ -262,17 +277,20 @@ function sarai_chinwag_enqueue_editor_assets() {
     // Add dynamic CSS variables for editor (override root.css defaults)
     $heading_font = get_theme_mod('sarai_chinwag_heading_font', 'System Fonts');
     $body_font = get_theme_mod('sarai_chinwag_body_font', 'System Fonts');
+    $site_title_font = get_theme_mod('sarai_chinwag_site_title_font', 'Gluten');
     $heading_font_size = get_theme_mod('sarai_chinwag_heading_font_size', 50);
     $body_font_size = get_theme_mod('sarai_chinwag_body_font_size', 50);
 
     $heading_font_family = sarai_chinwag_get_font_family($heading_font);
     $body_font_family = sarai_chinwag_get_font_family($body_font);
+    $site_title_font_family = sarai_chinwag_get_font_family($site_title_font);
     $heading_scale = $heading_font_size / 50;
     $body_scale = $body_font_size / 50;
 
     $editor_css = ":root {
         --font-heading: {$heading_font_family};
         --font-body: {$body_font_family};
+        --font-site-title: {$site_title_font_family};
         --font-heading-scale: {$heading_scale};
         --font-body-scale: {$body_scale};
     }";
@@ -302,6 +320,7 @@ add_action('enqueue_block_editor_assets', 'sarai_chinwag_enqueue_editor_assets')
 function sarai_chinwag_update_root_css() {
     $heading_font = get_theme_mod('sarai_chinwag_heading_font', 'System Fonts');
     $body_font = get_theme_mod('sarai_chinwag_body_font', 'System Fonts');
+    $site_title_font = get_theme_mod('sarai_chinwag_site_title_font', 'Gluten');
     $heading_font_size = get_theme_mod('sarai_chinwag_heading_font_size', 50);
     $body_font_size = get_theme_mod('sarai_chinwag_body_font_size', 50);
     $primary_color = get_theme_mod('sarai_chinwag_primary_color', '#1fc5e2');
@@ -312,6 +331,7 @@ function sarai_chinwag_update_root_css() {
     
     $heading_font_family = sarai_chinwag_get_font_family($heading_font);
     $body_font_family = sarai_chinwag_get_font_family($body_font);
+    $site_title_font_family = sarai_chinwag_get_font_family($site_title_font);
     $heading_scale = $heading_font_size / 50;
     $body_scale = $body_font_size / 50;
     
@@ -320,6 +340,7 @@ function sarai_chinwag_update_root_css() {
     /* Typography */
     --font-heading: {$heading_font_family};
     --font-body: {$body_font_family};
+    --font-site-title: {$site_title_font_family};
     
     /* Font Scaling */
     --font-heading-scale: {$heading_scale};

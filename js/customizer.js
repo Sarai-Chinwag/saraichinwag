@@ -48,6 +48,19 @@
         });
     });
 
+    // Site Title Font
+    wp.customize('sarai_chinwag_site_title_font', function(value) {
+        value.bind(function(newval) {
+            var fontFamily = getFontFamily(newval);
+            document.documentElement.style.setProperty('--font-site-title', fontFamily);
+
+            // Load Google Font if needed
+            if (newval !== 'Gluten' && newval !== 'System Fonts') {
+                loadGoogleFont(newval);
+            }
+        });
+    });
+
     // Body Font
     wp.customize('sarai_chinwag_body_font', function(value) {
         value.bind(function(newval) {

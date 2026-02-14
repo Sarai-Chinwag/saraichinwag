@@ -27,42 +27,36 @@
 .editor-styles-wrapper h1 {
     font-family: var(--font-heading) !important;
     font-size: calc(1.75em * var(--font-heading-scale));
-    text-transform: uppercase;
     font-weight: 600;
 }
 
 .editor-styles-wrapper h2 {
     font-family: var(--font-heading) !important;
     font-size: calc(1.38em * var(--font-heading-scale));
-    text-transform: uppercase;
     font-weight: 600;
 }
 
 .editor-styles-wrapper h3 {
     font-family: var(--font-heading) !important;
     font-size: calc(1.2em * var(--font-heading-scale));
-    text-transform: uppercase;
     font-weight: 600;
 }
 
 .editor-styles-wrapper h4 {
     font-family: var(--font-heading) !important;
     font-size: calc(1.1em * var(--font-heading-scale));
-    text-transform: uppercase;
     font-weight: 600;
 }
 
 .editor-styles-wrapper h5 {
     font-family: var(--font-heading) !important;
     font-size: calc(1.05em * var(--font-heading-scale));
-    text-transform: uppercase;
     font-weight: 600;
 }
 
 .editor-styles-wrapper h6 {
     font-family: var(--font-heading) !important;
     font-size: calc(1em * var(--font-heading-scale));
-    text-transform: uppercase;
     font-weight: 600;
 }
 
@@ -71,6 +65,5 @@
 .editor-post-title textarea {
     font-family: var(--font-heading) !important;
     font-size: calc(1.75em * var(--font-heading-scale));
-    text-transform: uppercase;
     font-weight: 600;
 }
