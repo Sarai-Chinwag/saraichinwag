@@ -1756,7 +1756,7 @@ body.spawn-app:has(.wp-block-spawn-dashboard) .spawn-main {
 	align-items: center;
 	gap: 0.5em;
 	text-decoration: none;
-	font-family: var(--font-heading, 'Gluten', sans-serif);
+	font-family: var(--font-heading);
 	font-size: 1.5rem;
 	color: var(--color-text, #333);
 }
