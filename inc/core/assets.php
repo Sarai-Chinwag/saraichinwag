@@ -97,6 +97,17 @@ function sarai_chinwag_enqueue_styles() {
         );
     }
 
+    // Journal-specific styles (conditionally loaded)
+    if ( is_singular( 'journal' ) || is_post_type_archive( 'journal' ) ) {
+        $journal_version = filemtime( $theme_dir . '/inc/assets/css/journal.css' );
+        wp_enqueue_style(
+            'sarai-chinwag-journal',
+            $theme_uri . '/inc/assets/css/journal.css',
+            array( 'sarai-chinwag-root-css' ),
+            $journal_version
+        );
+    }
+
     // 404 error page styles (conditionally loaded)
     if (is_404()) {
         $error_version = filemtime($theme_dir . '/inc/assets/css/404.css');
