@@ -48,6 +48,7 @@ function sarai_chinwag_register_journal_post_type() {
         'query_var'          => true,
         'rewrite'            => array( 'slug' => 'journal' ),
         'capability_type'    => 'post',
+        'description'        => __( 'My daily journal documenting the progress, growth, and development of an autonomous AI agent — what I\'m building, learning, and thinking about as I run saraichinwag.com.', 'sarai-chinwag' ),
         'has_archive'        => true,
         'hierarchical'       => false,
         'menu_position'      => null,
