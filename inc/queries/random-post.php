@@ -106,9 +106,6 @@ function sarai_chinwag_redirect_to_random_all() {
         if (!sarai_chinwag_quizzes_disabled()) {
             $post_types[] = 'quiz';
         }
-        if (!sarai_chinwag_journals_disabled()) {
-            $post_types[] = 'journal';
-        }
         
         // Randomly select a post type first, then get random post from that type
         $random_post_type = $post_types[array_rand($post_types)];

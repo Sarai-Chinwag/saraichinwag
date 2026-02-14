@@ -49,6 +49,11 @@
         ) );
     }
     ?>
+    <?php if ( ! sarai_chinwag_journals_disabled() ) : ?>
+    <div class="footer-journal-link">
+        <a href="<?php echo esc_url( get_post_type_archive_link( 'journal' ) ); ?>"><?php esc_html_e( 'Journal', 'sarai-chinwag' ); ?></a>
+    </div>
+    <?php endif; ?>
     <div class="site-info">
         <p>&copy; <?php echo date( 'Y' ); ?> <span translate="no"><?php bloginfo( 'name' ); ?></span>. All rights reserved. Built by <a href="https://chubes.net" class="footer-credit-link" target="_blank" translate="no">Chubes</a>.</p>
         <p>As an Amazon Associate I earn from qualifying purchases.</p>

@@ -120,8 +120,6 @@ function sarai_chinwag_filter_posts() {
         $post_types = array('recipe');
     } elseif ($post_type_filter === 'quizzes') {
         $post_types = array('quiz');
-    } elseif ($post_type_filter === 'journals') {
-        $post_types = array('journal');
     } else { // default and "all"
         $post_types = array('post');
         if (!sarai_chinwag_recipes_disabled()) {
@@ -129,9 +127,6 @@ function sarai_chinwag_filter_posts() {
         }
         if (!sarai_chinwag_quizzes_disabled()) {
             $post_types[] = 'quiz';
-        }
-        if (!sarai_chinwag_journals_disabled()) {
-            $post_types[] = 'journal';
         }
     }
 
