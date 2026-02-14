@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Journal archive: list-style template, breadcrumbs, dates
+- Decouple site title font with --font-site-title CSS variable and customizer setting
+- Wire quizzes into filter bar alongside posts and recipes
+- 3-color system: purple secondary, pink demoted to tertiary with --color-tertiary variable
+
+### Changed
+- Switch heading font from Gluten to Lora, remove uppercase headings
+
+### Fixed
+- Hide filter bar on journal archives
+- Remove hardcoded font and color fallbacks
+
 ## [2.4.0] - 2026-02-14
 
 - Add journal CPT with admin toggle, templates, and full site integration
