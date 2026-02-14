@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add journal CPT with admin toggle, templates, and full site integration
+
 ## [2.3.0] - 2026-02-09
 
 - Add missing sarai_chinwag_clear_all_image_count_caches() function to fix stale image counts in Redis cache
