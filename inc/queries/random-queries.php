@@ -4,7 +4,7 @@
  * Replaces expensive orderby => 'rand' with cached post ID system
  */
 function sarai_chinwag_random_home_archive_search_query( $query ) {
-    if ( ! is_admin() && $query->is_main_query() && ! $query->is_feed() && ( $query->is_home() || $query->is_archive() || $query->is_search() ) ) {
+    if ( ! is_admin() && $query->is_main_query() && ! $query->is_feed() && ! $query->is_post_type_archive() && ( $query->is_home() || $query->is_archive() || $query->is_search() ) ) {
         // Build post types array
         $post_types = array( 'post' );
         if ( !sarai_chinwag_recipes_disabled() ) {
