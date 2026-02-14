@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [2.4.0] - 2026-02-14
 
 - Add journal CPT with admin toggle, templates, and full site integration
 
