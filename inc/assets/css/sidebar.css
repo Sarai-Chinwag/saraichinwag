@@ -23,7 +23,7 @@
 
 /* Widget titles */
 .widget-title {
-    border-bottom: 3px dashed var(--color-secondary);
+    border-bottom: 3px dashed var(--color-tertiary);
     width: max-content;
 }
 

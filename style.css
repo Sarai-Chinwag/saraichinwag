@@ -55,7 +55,7 @@ h1.entry-title {
 }
 
 .widget-title {
-    border-bottom: 3px dashed var(--color-secondary);
+    border-bottom: 3px dashed var(--color-tertiary);
     width: max-content;
 }
 /* ===== BUTTONS AND FORM ELEMENTS ===== */
@@ -399,7 +399,7 @@ fill: #fff;
     color: var(--color-background);
     text-decoration: underline;
     text-decoration-style:dotted;
-    text-decoration-color: var(--color-secondary);
+    text-decoration-color: var(--color-tertiary);
 
 }
 
@@ -671,7 +671,7 @@ button:focus, a:focus {
 }
 
 .badge-tag {
-    background-color: var(--color-secondary);
+    background-color: var(--color-tertiary);
     color: var(--color-background);
 }
 
@@ -772,7 +772,7 @@ button:focus, a:focus {
 
 /* Tag gallery badges */
 .gallery-badge.badge-tag {
-    background-color: var(--color-secondary);
+    background-color: var(--color-tertiary);
     color: var(--color-background);
 }
 
@@ -838,7 +838,7 @@ button:focus, a:focus {
 }
 
 .archive-breadcrumbs a:hover {
-    color: var(--color-secondary);
+    color: var(--color-tertiary);
     text-decoration: underline;
 }
 
@@ -849,7 +849,7 @@ button:focus, a:focus {
 .random-discovery {
     margin: 30px 0;
     padding: 20px 0;
-    border-top: 3px dashed var(--color-secondary);
+    border-top: 3px dashed var(--color-tertiary);
 }
 
 .random-discovery .widget-title {
@@ -891,7 +891,7 @@ button:focus, a:focus {
 }
 
 .discovery-post .entry-title a:hover {
-    text-decoration-color: var(--color-secondary);
+    text-decoration-color: var(--color-tertiary);
 }
 
 /* Mobile adjustments for discovery section */
@@ -1555,7 +1555,7 @@ body.error404 .error-404 li {
 /* WordPress Button Blocks - match theme style */
 .wp-block-button__link {
 	background-color: var(--color-primary, #1fc5e2);
-	border: 2px solid var(--color-secondary, #ff6eb1);
+	border: 2px solid var(--color-secondary);
 	border-radius: 5px;
 	color: var(--color-background, #fff);
 	padding: 10px 20px;
@@ -1565,7 +1565,7 @@ body.error404 .error-404 li {
 }
 
 .wp-block-button__link:hover {
-	background-color: var(--color-secondary, #ff6eb1);
+	background-color: var(--color-secondary);
 	color: var(--color-background, #fff);
 }
 
@@ -1799,7 +1799,7 @@ body.spawn-app:has(.wp-block-spawn-dashboard) .spawn-main {
 }
 
 .spawn-header__button:hover {
-	background: var(--color-secondary, #ff6eb1);
+	background: var(--color-secondary);
 	color: #fff;
 }
 

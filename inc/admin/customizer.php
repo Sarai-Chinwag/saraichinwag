@@ -112,7 +112,7 @@ function sarai_chinwag_customize_register($wp_customize) {
     )));
 
     $wp_customize->add_setting('sarai_chinwag_secondary_color', array(
-        'default' => '#ff6eb1',
+        'default' => '#7c5cbf',
         'sanitize_callback' => 'sanitize_hex_color',
         'transport' => 'postMessage',
     ));
@@ -120,7 +120,19 @@ function sarai_chinwag_customize_register($wp_customize) {
     $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'sarai_chinwag_secondary_color', array(
         'label' => __('Secondary Color', 'sarai-chinwag'),
         'section' => 'sarai_chinwag_colors',
-        'description' => __('Used for borders, highlights, and secondary accents.', 'sarai-chinwag'),
+        'description' => __('Used for buttons, CTAs, and key accents.', 'sarai-chinwag'),
+    )));
+
+    $wp_customize->add_setting('sarai_chinwag_tertiary_color', array(
+        'default' => '#ff6eb1',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport' => 'postMessage',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'sarai_chinwag_tertiary_color', array(
+        'label' => __('Tertiary Color', 'sarai-chinwag'),
+        'section' => 'sarai_chinwag_colors',
+        'description' => __('Used for tag badges, decorative borders, and playful accents.', 'sarai-chinwag'),
     )));
 
     $wp_customize->add_setting('sarai_chinwag_text_color', array(
@@ -324,7 +336,8 @@ function sarai_chinwag_update_root_css() {
     $heading_font_size = get_theme_mod('sarai_chinwag_heading_font_size', 50);
     $body_font_size = get_theme_mod('sarai_chinwag_body_font_size', 50);
     $primary_color = get_theme_mod('sarai_chinwag_primary_color', '#1fc5e2');
-    $secondary_color = get_theme_mod('sarai_chinwag_secondary_color', '#ff6eb1');
+    $secondary_color = get_theme_mod('sarai_chinwag_secondary_color', '#7c5cbf');
+    $tertiary_color = get_theme_mod('sarai_chinwag_tertiary_color', '#ff6eb1');
     $text_color = get_theme_mod('sarai_chinwag_text_color', '#000000');
     $background_color = get_theme_mod('sarai_chinwag_background_color', '#ffffff');
     $header_footer_bg_color = get_theme_mod('sarai_chinwag_header_footer_bg_color', '#000000');
@@ -363,6 +376,7 @@ function sarai_chinwag_update_root_css() {
     /* Colors */
     --color-primary: {$primary_color};
     --color-secondary: {$secondary_color};
+    --color-tertiary: {$tertiary_color};
     --color-text: {$text_color};
     --color-background: {$background_color};
     --color-header-footer-bg: {$header_footer_bg_color};

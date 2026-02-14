@@ -72,7 +72,7 @@ h1.entry-title {
 }
 
 .badge-tag {
-    background-color: var(--color-secondary);
+    background-color: var(--color-tertiary);
     color: var(--color-background);
 }
 
@@ -97,7 +97,7 @@ h1.entry-title {
 .random-discovery {
     margin: 30px 0;
     padding: 20px 0;
-    border-top: 3px dashed var(--color-secondary);
+    border-top: 3px dashed var(--color-tertiary);
 }
 
 .random-discovery .widget-title {
@@ -139,7 +139,7 @@ h1.entry-title {
 }
 
 .discovery-post .entry-title a:hover {
-    text-decoration-color: var(--color-secondary);
+    text-decoration-color: var(--color-tertiary);
 }
 
 .discovery-post .post-thumbnail {

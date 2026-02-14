@@ -69,7 +69,7 @@
 }
 
 .archive-breadcrumbs a:hover {
-    color: var(--color-secondary);
+    color: var(--color-tertiary);
     text-decoration: underline;
 }
 
