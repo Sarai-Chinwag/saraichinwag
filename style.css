@@ -359,7 +359,6 @@ fill: #fff;
     display: flex;
     flex-direction: column;
     font-family: var(--font-heading);
-    text-transform: uppercase;
     font-size: calc(1.1rem * var(--font-heading-scale));
     color: #000;
     text-decoration-color: var(--color-primary);
