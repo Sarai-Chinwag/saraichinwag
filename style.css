@@ -27,6 +27,30 @@ body {
     overflow-x: hidden;
 }
 
+/* ===== GLOBAL LINK STYLES ===== */
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--color-secondary);
+}
+
+/* In-content links get the signature dotted underline */
+.entry-content a {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--color-tertiary);
+    text-underline-offset: 3px;
+}
+
+.entry-content a:hover {
+    color: var(--color-secondary);
+    text-decoration-color: var(--color-secondary);
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     margin: 18px 0;
