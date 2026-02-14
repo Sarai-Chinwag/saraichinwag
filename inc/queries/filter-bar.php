@@ -14,6 +14,11 @@ function sarai_chinwag_display_filter_bar() {
     if (!is_home() && !is_archive() && !is_search() && !$is_image_gallery) {
         return;
     }
+
+    // Don't show filter bar on journal archives — journals have their own layout.
+    if (is_post_type_archive('journal')) {
+        return;
+    }
     
     get_template_part('template-parts/filter', 'bar');
 }
