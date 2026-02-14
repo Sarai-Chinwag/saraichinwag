@@ -13,6 +13,9 @@ function sarai_chinwag_random_home_archive_search_query( $query ) {
         if ( !sarai_chinwag_quizzes_disabled() ) {
             $post_types[] = 'quiz';
         }
+        if ( !sarai_chinwag_journals_disabled() ) {
+            $post_types[] = 'journal';
+        }
         
         $query->set( 'post_type', $post_types );
         

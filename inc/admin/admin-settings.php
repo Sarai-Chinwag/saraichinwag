@@ -23,6 +23,7 @@ function sarai_chinwag_settings_init() {
     register_setting('sarai_chinwag_settings', 'sarai_chinwag_indexnow_key');
     register_setting('sarai_chinwag_settings', 'sarai_chinwag_disable_recipes');
     register_setting('sarai_chinwag_settings', 'sarai_chinwag_disable_quizzes');
+    register_setting('sarai_chinwag_settings', 'sarai_chinwag_disable_journals');
     register_setting('sarai_chinwag_settings', 'sarai_chinwag_google_fonts_api_key');
     register_setting('sarai_chinwag_settings', 'sarai_chinwag_pinterest_username');
     register_setting('sarai_chinwag_settings', 'sarai_chinwag_turnstile_site_key');
@@ -104,6 +105,14 @@ function sarai_chinwag_settings_init() {
         'sarai_chinwag_settings',
         'sarai_chinwag_functionality_section'
     );
+
+    add_settings_field(
+        'sarai_chinwag_disable_journals',
+        __('Disable Journal Functionality', 'sarai-chinwag'),
+        'sarai_chinwag_disable_journals_render',
+        'sarai_chinwag_settings',
+        'sarai_chinwag_functionality_section'
+    );
 }
 add_action('admin_init', 'sarai_chinwag_settings_init');
 
@@ -163,6 +172,12 @@ function sarai_chinwag_disable_quizzes_render() {
     $value = get_option('sarai_chinwag_disable_quizzes', false);
     echo '<input type="checkbox" name="sarai_chinwag_disable_quizzes" value="1" ' . checked(1, $value, false) . ' />';
     echo '<p class="description">' . __('When enabled, completely disables all quiz-related functionality. Existing quiz posts remain accessible via direct URL but are not discoverable.', 'sarai-chinwag') . '</p>';
+}
+
+function sarai_chinwag_disable_journals_render() {
+    $value = get_option('sarai_chinwag_disable_journals', false);
+    echo '<input type="checkbox" name="sarai_chinwag_disable_journals" value="1" ' . checked(1, $value, false) . ' />';
+    echo '<p class="description">' . __('When enabled, completely disables all journal-related functionality. Existing journal entries remain accessible via direct URL but are not discoverable.', 'sarai-chinwag') . '</p>';
 }
 
 function sarai_chinwag_settings_page() {

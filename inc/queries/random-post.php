@@ -73,6 +73,29 @@ function sarai_chinwag_redirect_to_random_quiz() {
 }
 add_action('template_redirect', 'sarai_chinwag_redirect_to_random_quiz');
 
+function sarai_chinwag_redirect_to_random_journal() {
+    if (sarai_chinwag_journals_disabled()) {
+        wp_redirect(home_url('/random-post'));
+        exit;
+    }
+
+    if (is_page('random-journal')) {
+        $random_journal_id = sarai_chinwag_get_cached_random_post_id('journal');
+
+        if ($random_journal_id) {
+            $permalink = get_permalink($random_journal_id);
+            if ($permalink) {
+                wp_redirect($permalink);
+                exit;
+            }
+        }
+
+        wp_redirect(home_url('/random-post'));
+        exit;
+    }
+}
+add_action('template_redirect', 'sarai_chinwag_redirect_to_random_journal');
+
 function sarai_chinwag_redirect_to_random_all() {
     if (is_page('random-all')) {
         // Build array of possible post types
@@ -82,6 +105,9 @@ function sarai_chinwag_redirect_to_random_all() {
         }
         if (!sarai_chinwag_quizzes_disabled()) {
             $post_types[] = 'quiz';
+        }
+        if (!sarai_chinwag_journals_disabled()) {
+            $post_types[] = 'journal';
         }
         
         // Randomly select a post type first, then get random post from that type
