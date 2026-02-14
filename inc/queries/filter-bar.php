@@ -29,6 +29,9 @@ function sarai_chinwag_show_type_filters() {
     if (!sarai_chinwag_quizzes_disabled()) {
         $available_types[] = 'quiz';
     }
+    if (!sarai_chinwag_journals_disabled()) {
+        $available_types[] = 'journal';
+    }
     
     return count($available_types) > 1;
 }

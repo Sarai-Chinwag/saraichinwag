@@ -78,6 +78,7 @@ require_once get_template_directory() . '/inc/core/assets.php';
 
 require_once get_template_directory() . '/inc/recipes.php';
 require_once get_template_directory() . '/inc/quizzes.php';
+require_once get_template_directory() . '/inc/journals.php';
 require_once get_template_directory() . '/inc/ratings.php';
 
 $contact_dir = get_template_directory() . '/inc/contact';
@@ -151,6 +152,16 @@ function sarai_chinwag_recipes_disabled() {
 function sarai_chinwag_quizzes_disabled() {
     $disabled = get_option('sarai_chinwag_disable_quizzes', false);
     return apply_filters('sarai_chinwag_quizzes_disabled', $disabled);
+}
+
+/**
+ * Check if journal functionality is disabled
+ *
+ * @return bool True if journals are disabled, false if enabled
+ */
+function sarai_chinwag_journals_disabled() {
+    $disabled = get_option('sarai_chinwag_disable_journals', false);
+    return apply_filters('sarai_chinwag_journals_disabled', $disabled);
 }
 
 

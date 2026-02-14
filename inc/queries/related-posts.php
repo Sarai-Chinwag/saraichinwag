@@ -39,6 +39,9 @@ function sarai_chinwag_get_hierarchical_related_posts($current_post_id, $limit =
     if (!sarai_chinwag_quizzes_disabled()) {
         $post_types[] = 'quiz';
     }
+    if (!sarai_chinwag_journals_disabled()) {
+        $post_types[] = 'journal';
+    }
 
     // Priority 1: Same tags
     $tags = get_the_tags($current_post_id);
@@ -94,7 +97,7 @@ function sarai_chinwag_get_hierarchical_related_posts($current_post_id, $limit =
 }
 
 function sarai_chinwag_random_discovery() {
-    if (!is_singular(array('post', 'recipe', 'quiz'))) {
+    if (!is_singular(array('post', 'recipe', 'quiz', 'journal'))) {
         return;
     }
 

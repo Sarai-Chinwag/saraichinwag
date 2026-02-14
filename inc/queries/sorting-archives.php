@@ -48,49 +48,64 @@ add_action('wp_enqueue_scripts', 'sarai_chinwag_enqueue_filter_scripts');
  * @since 2.0.0
  */
 function sarai_chinwag_has_both_posts_and_recipes() {
-    if (sarai_chinwag_recipes_disabled()) {
-        return false;
+    return sarai_chinwag_has_multiple_post_types();
+}
+
+/**
+ * Get available post types with published content in current context
+ *
+ * @return array Post type slugs with published content (e.g. ['post', 'recipe', 'quiz'])
+ * @since 2.3.0
+ */
+function sarai_chinwag_get_available_post_types() {
+    $types_to_check = array( 'post' => true );
+
+    if ( ! sarai_chinwag_recipes_disabled() ) {
+        $types_to_check['recipe'] = true;
     }
-    
-    if (is_home()) {
-        $has_posts = get_posts(array(
-            'post_type' => 'post',
-            'post_status' => 'publish',
-            'numberposts' => 1,
-            'fields' => 'ids'
-        ));
-        
-        $has_recipes = get_posts(array(
-            'post_type' => 'recipe',
-            'post_status' => 'publish', 
-            'numberposts' => 1,
-            'fields' => 'ids'
-        ));
-        
-        return !empty($has_posts) && !empty($has_recipes);
+    if ( function_exists( 'sarai_chinwag_quizzes_disabled' ) && ! sarai_chinwag_quizzes_disabled() ) {
+        $types_to_check['quiz'] = true;
     }
-    
-    if (is_archive() || is_search()) {
+
+    $available = array();
+
+    if ( is_home() ) {
+        foreach ( $types_to_check as $type => $enabled ) {
+            $found = get_posts( array(
+                'post_type'   => $type,
+                'post_status' => 'publish',
+                'numberposts' => 1,
+                'fields'      => 'ids',
+            ) );
+            if ( ! empty( $found ) ) {
+                $available[] = $type;
+            }
+        }
+    } elseif ( is_archive() || is_search() ) {
         global $wp_query;
-
-        $post_query_args = $wp_query->query_vars;
-        $post_query_args['post_type'] = 'post';
-        $post_query_args['posts_per_page'] = 1;
-        $post_query = new WP_Query($post_query_args);
-        $has_posts = $post_query->have_posts();
-
-        $recipe_query_args = $wp_query->query_vars;
-        $recipe_query_args['post_type'] = 'recipe';
-        $recipe_query_args['posts_per_page'] = 1;
-        $recipe_query = new WP_Query($recipe_query_args);
-        $has_recipes = $recipe_query->have_posts();
-
+        foreach ( $types_to_check as $type => $enabled ) {
+            $args                  = $wp_query->query_vars;
+            $args['post_type']     = $type;
+            $args['posts_per_page'] = 1;
+            $check = new WP_Query( $args );
+            if ( $check->have_posts() ) {
+                $available[] = $type;
+            }
+        }
         wp_reset_postdata();
-        
-        return $has_posts && $has_recipes;
     }
 
-    return false;
+    return $available;
+}
+
+/**
+ * Check if 2+ post types have published content in current context
+ *
+ * @return bool
+ * @since 2.3.0
+ */
+function sarai_chinwag_has_multiple_post_types() {
+    return count( sarai_chinwag_get_available_post_types() ) >= 2;
 }
 
 /**

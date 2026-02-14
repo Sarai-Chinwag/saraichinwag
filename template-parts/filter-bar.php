@@ -38,27 +38,35 @@ $search_term = is_search() ? get_search_query() : '';
     </div>
     
     <?php 
-    $has_both_post_types = !sarai_chinwag_recipes_disabled() && sarai_chinwag_has_both_posts_and_recipes();
+    $available_types = sarai_chinwag_get_available_post_types();
+    $has_multiple_types = count($available_types) >= 2;
     $can_show_mode_toggle = is_category() || is_tag() || is_home() || is_search() || $is_image_gallery;
     
-    $show_type_filters = $has_both_post_types || $can_show_mode_toggle;
+    $show_type_filters = $has_multiple_types || $can_show_mode_toggle;
     
     if ($show_type_filters) :
     ?>
     <div class="filter-section type-filters">
         <div class="filter-buttons">
-            <?php 
-            if ($has_both_post_types) : 
-            ?>
+            <?php if ($has_multiple_types) : ?>
             <button class="filter-btn type-btn <?php echo (!$is_image_gallery) ? 'active' : ''; ?>" data-type="all">
                 <?php _e('All', 'sarai-chinwag'); ?>
             </button>
+            <?php if (in_array('post', $available_types, true)) : ?>
             <button class="filter-btn type-btn" data-type="posts">
                 <?php _e('Posts', 'sarai-chinwag'); ?>
             </button>
+            <?php endif; ?>
+            <?php if (in_array('recipe', $available_types, true)) : ?>
             <button class="filter-btn type-btn" data-type="recipes">
                 <?php _e('Recipes', 'sarai-chinwag'); ?>
             </button>
+            <?php endif; ?>
+            <?php if (in_array('quiz', $available_types, true)) : ?>
+            <button class="filter-btn type-btn" data-type="quizzes">
+                <?php _e('Quizzes', 'sarai-chinwag'); ?>
+            </button>
+            <?php endif; ?>
             <?php else : ?>
             <button class="filter-btn type-btn <?php echo $is_image_gallery ? '' : 'active'; ?>" data-type="posts">
                 <?php _e('Posts', 'sarai-chinwag'); ?>

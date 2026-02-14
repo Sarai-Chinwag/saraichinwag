@@ -30,7 +30,7 @@ function sarai_chinwag_extract_images_from_search($search_query, $limit = 30) {
     
     // Get posts from search query
     $posts = get_posts(array(
-        'post_type' => array('post', 'recipe'),
+        'post_type' => array('post', 'recipe', 'quiz'),
         'post_status' => 'publish',
         'numberposts' => 500, // Limit posts to prevent memory issues
         'orderby' => 'rand',
@@ -100,14 +100,7 @@ function sarai_chinwag_extract_images_from_search($search_query, $limit = 30) {
  */
 function sarai_chinwag_get_filtered_search_images($search_query, $sort_by = 'random', $post_type_filter = 'all', $loaded_images = array(), $limit = 30) {
     // Determine post types to include
-    $post_types = array('post');
-    if (!sarai_chinwag_recipes_disabled()) {
-        if ($post_type_filter === 'recipes') {
-            $post_types = array('recipe');
-        } elseif ($post_type_filter === 'all') {
-            $post_types[] = 'recipe';
-        }
-    }
+    $post_types = sarai_chinwag_resolve_post_types( $post_type_filter );
     
     // Get posts from search query with appropriate sorting
     $post_args = array(
