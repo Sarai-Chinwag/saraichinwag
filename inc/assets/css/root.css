@@ -1,7 +1,7 @@
 /* Centralized CSS Variables - Updated dynamically by theme functions */
 :root {
     /* Typography */
-    --font-heading: 'Gluten', 'Helvetica', Arial, sans-serif;
+    --font-heading: 'Lora', 'Helvetica', Arial, sans-serif;
     --font-body: 'Quicksand', 'Helvetica', Arial, sans-serif;
     --font-site-title: 'Gluten', 'Helvetica', Arial, sans-serif;
     
@@ -25,7 +25,8 @@
     
     /* Colors */
     --color-primary: #1fc5e2;
-    --color-secondary: #ff6eb1;
+    --color-secondary: #7c5cbf;
+    --color-tertiary: #ff6eb1;
     --color-text: #000000;
     --color-background: #ffffff;
     --color-header-footer-bg: #000000;

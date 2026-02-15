@@ -18,6 +18,10 @@
 }
 
 .journal-list-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    column-gap: var(--space-md);
+    align-items: start;
     padding: var(--space-lg) 0;
     border-bottom: 1px solid var(--color-border);
 }
@@ -31,10 +35,12 @@
     font-size: var(--font-size-small);
     color: var(--color-text-light);
     font-family: var(--font-body);
-    margin-bottom: var(--space-xs);
+    margin: 0;
+    line-height: 1.5;
 }
 
 .journal-list-title {
+    grid-column: 2;
     font-family: var(--font-heading);
     font-size: var(--font-size-h3);
     margin: 0 0 var(--space-xs) 0;
@@ -51,6 +57,7 @@
 }
 
 .journal-list-excerpt {
+    grid-column: 2;
     color: var(--color-text-light);
     font-size: 0.95em;
     margin: 0;
@@ -64,6 +71,13 @@
     }
 
     .journal-list-item {
+        grid-template-columns: 1fr;
+        row-gap: var(--space-xs);
         padding: var(--space-md) 0;
+    }
+
+    .journal-list-title,
+    .journal-list-excerpt {
+        grid-column: 1;
     }
 }
