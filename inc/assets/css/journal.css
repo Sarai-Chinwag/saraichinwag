@@ -7,14 +7,20 @@
     font-family: var(--font-body);
 }
 
+/* Journal Archive Layout — uses sidebar */
+.post-type-archive-journal #primary {
+    float: left;
+    width: 66%;
+}
+
 /* Journal Archive List */
 .journal-archive .page-header {
     margin-bottom: var(--space-xl);
 }
 
 .journal-list {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
 }
 
 .journal-list-item {
@@ -64,8 +70,13 @@
     line-height: 1.5;
 }
 
-/* Mobile */
+/* Mobile — stack sidebar below content */
 @media (max-width: 768px) {
+    .post-type-archive-journal #primary {
+        float: none;
+        width: 100%;
+    }
+
     .journal-list {
         padding: 0 var(--space-sm);
     }

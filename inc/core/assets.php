@@ -76,7 +76,7 @@ function sarai_chinwag_enqueue_styles() {
     }
 
     // Sidebar-specific styles (conditionally loaded)
-    if (is_single() || is_page() || (!sarai_chinwag_recipes_disabled() && is_singular('recipe'))) {
+    if (is_single() || is_page() || (!sarai_chinwag_recipes_disabled() && is_singular('recipe')) || is_post_type_archive('journal')) {
         $sidebar_version = filemtime($theme_dir . '/inc/assets/css/sidebar.css');
         wp_enqueue_style(
             'sarai-chinwag-sidebar',

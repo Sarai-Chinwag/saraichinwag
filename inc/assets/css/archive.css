@@ -4,16 +4,16 @@
 
 /* ===== FULL-WIDTH LAYOUT ===== */
 
-/* Hide sidebar on archive pages */
+/* Hide sidebar on archive pages (except journal archive which uses sidebar) */
 .home #secondary,
-.archive #secondary,
+.archive:not(.post-type-archive-journal) #secondary,
 .search #secondary {
     display: none;
 }
 
-/* Full-width primary content */
+/* Full-width primary content (except journal archive which uses sidebar) */
 .home #primary,
-.archive #primary,
+.archive:not(.post-type-archive-journal) #primary,
 .search #primary {
     width: 100%;
     max-width: 100%;
