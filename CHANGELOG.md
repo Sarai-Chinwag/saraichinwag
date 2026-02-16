@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.5.1] - 2026-02-16
+
+- Show sidebar on journal archive page
+
 ## [2.5.0] - 2026-02-14
 
 ### Added
