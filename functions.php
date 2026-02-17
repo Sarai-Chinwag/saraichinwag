@@ -30,8 +30,9 @@ function sarai_chinwag_setup() {
         add_image_size('grid-thumb', 450, 450, true);
         
         register_nav_menus( array(
-            'primary' => __( 'Primary Menu', 'sarai-chinwag' ),
-            'footer'  => __( 'Footer Menu', 'sarai-chinwag' ),
+            'primary'   => __( 'Primary Menu', 'sarai-chinwag' ),
+            'secondary' => __( 'Secondary Menu', 'sarai-chinwag' ),
+            'footer'    => __( 'Footer Menu', 'sarai-chinwag' ),
         ) );
 }
 add_action( 'after_setup_theme', 'sarai_chinwag_setup' );
@@ -75,6 +76,7 @@ require_once get_template_directory() . '/inc/admin/admin-settings.php';
 require_once get_template_directory() . '/inc/admin/customizer.php';
 
 require_once get_template_directory() . '/inc/core/assets.php';
+require_once get_template_directory() . '/inc/core/hero.php';
 
 require_once get_template_directory() . '/inc/recipes.php';
 require_once get_template_directory() . '/inc/quizzes.php';

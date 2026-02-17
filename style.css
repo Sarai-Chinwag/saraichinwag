@@ -1885,3 +1885,123 @@ body.spawn-app .entry-title {
 		padding: 0 var(--space-sm, 10px);
 	}
 }
+
+/* ── Secondary Header Navigation ───────────────────────────────── */
+.secondary-header {
+    background: var(--color-header-footer-bg, #000);
+    padding: var(--space-sm, 10px) var(--space-md, 15px);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md, 15px);
+    flex-wrap: wrap;
+}
+.secondary-header a {
+    color: var(--color-background, #fff);
+    text-decoration: none;
+    font-size: var(--font-size-small, 0.85em);
+    font-weight: 500;
+    padding: var(--space-xs, 5px) var(--space-sm, 10px);
+    border-radius: var(--radius-sm, 4px);
+    transition: background 0.2s ease;
+}
+.secondary-header a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.secondary-header li {
+    list-style: none;
+}
+
+/* ── Hero Welcome Section ──────────────────────────────────────── */
+.hero-welcome {
+    background: linear-gradient(135deg, var(--color-primary, #1fc5e2) 0%, var(--color-secondary, #ff6eb1) 100%);
+    padding: var(--space-xl, 30px) var(--space-lg, 20px);
+    text-align: center;
+    margin-bottom: var(--space-lg, 20px);
+    border-radius: 0;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    width: 100vw;
+}
+.hero-welcome__content {
+    max-width: 700px;
+    margin: 0 auto;
+}
+.hero-welcome__title {
+    color: var(--color-background, #fff);
+    font-size: 1.8em;
+    margin: 0 0 var(--space-sm, 10px) 0;
+    font-weight: 700;
+}
+.hero-welcome__subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1em;
+    margin: 0 0 var(--space-lg, 20px) 0;
+    line-height: 1.5;
+}
+.hero-welcome__buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-sm, 10px);
+    flex-wrap: wrap;
+}
+.hero-welcome__button {
+    display: inline-block;
+    padding: var(--space-sm, 10px) var(--space-md, 15px);
+    border-radius: var(--radius-sm, 4px);
+    text-decoration: none;
+    font-weight: var(--btn-font-weight, 600);
+    font-size: var(--font-size-small, 0.85em);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-welcome__button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.1));
+}
+.hero-welcome__button--primary {
+    background: var(--color-background, #fff);
+    color: var(--color-primary, #1fc5e2) !important;
+}
+.hero-welcome__button--secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--color-background, #fff) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.hero-welcome__button--outline {
+    background: transparent;
+    color: var(--color-background, #fff) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Mobile adjustments for secondary header and hero */
+@media (max-width: 600px) {
+    .secondary-header {
+        gap: var(--space-xs, 5px);
+        padding: var(--space-xs, 5px) var(--space-sm, 10px);
+    }
+    .secondary-header a {
+        font-size: 0.75em;
+        padding: var(--space-xs, 5px);
+    }
+    .hero-welcome {
+        padding: var(--space-lg, 20px) var(--space-md, 15px);
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: var(--space-md, 15px);
+        width: auto;
+    }
+    .hero-welcome__title {
+        font-size: 1.4em;
+    }
+    .hero-welcome__subtitle {
+        font-size: 0.9em;
+    }
+    .hero-welcome__buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    .hero-welcome__button {
+        width: 100%;
+        max-width: 250px;
+    }
+}

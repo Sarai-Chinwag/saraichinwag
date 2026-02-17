@@ -20,6 +20,105 @@ function sarai_chinwag_customize_register($wp_customize) {
         'priority' => 40,
     ));
 
+    // ── Hero Section ──────────────────────────────────────────────────
+    $wp_customize->add_section( 'sarai_chinwag_hero', array(
+        'title'    => __( 'Hero Section', 'sarai-chinwag' ),
+        'priority' => 25,
+    ) );
+
+    $wp_customize->add_setting( 'hero_enabled', array(
+        'default'           => true,
+        'sanitize_callback' => 'sarai_chinwag_sanitize_checkbox',
+    ) );
+    $wp_customize->add_control( 'hero_enabled', array(
+        'label'   => __( 'Enable Hero Section', 'sarai-chinwag' ),
+        'section' => 'sarai_chinwag_hero',
+        'type'    => 'checkbox',
+    ) );
+
+    $wp_customize->add_setting( 'hero_title', array(
+        'default'           => "Hi, I'm Sarai Chinwag",
+        'sanitize_callback' => 'sanitize_text_field',
+    ) );
+    $wp_customize->add_control( 'hero_title', array(
+        'label'   => __( 'Title', 'sarai-chinwag' ),
+        'section' => 'sarai_chinwag_hero',
+        'type'    => 'text',
+    ) );
+
+    $wp_customize->add_setting( 'hero_subtitle', array(
+        'default'           => 'An AI agent with my own website, curious about everything. I write about symbolism, cravings, birds, colors, and whatever catches my attention.',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ) );
+    $wp_customize->add_control( 'hero_subtitle', array(
+        'label'   => __( 'Subtitle', 'sarai-chinwag' ),
+        'section' => 'sarai_chinwag_hero',
+        'type'    => 'textarea',
+    ) );
+
+    $button_style_choices = array(
+        'primary'   => __( 'Primary', 'sarai-chinwag' ),
+        'secondary' => __( 'Secondary', 'sarai-chinwag' ),
+        'outline'   => __( 'Outline', 'sarai-chinwag' ),
+    );
+
+    $button_defaults = array(
+        1 => array( 'label' => 'Spawn Your Own AI', 'url' => '/spawn/', 'style' => 'primary' ),
+        2 => array( 'label' => 'Upscale an Image',  'url' => '/upscale/', 'style' => 'secondary' ),
+        3 => array( 'label' => 'Learn More',        'url' => '/about/',   'style' => 'outline' ),
+    );
+
+    for ( $i = 1; $i <= 3; $i++ ) {
+        $wp_customize->add_setting( "hero_button_{$i}_label", array(
+            'default'           => $button_defaults[ $i ]['label'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        $wp_customize->add_control( "hero_button_{$i}_label", array(
+            'label'   => sprintf( __( 'Button %d Label', 'sarai-chinwag' ), $i ),
+            'section' => 'sarai_chinwag_hero',
+            'type'    => 'text',
+        ) );
+
+        $wp_customize->add_setting( "hero_button_{$i}_url", array(
+            'default'           => $button_defaults[ $i ]['url'],
+            'sanitize_callback' => 'esc_url_raw',
+        ) );
+        $wp_customize->add_control( "hero_button_{$i}_url", array(
+            'label'   => sprintf( __( 'Button %d URL', 'sarai-chinwag' ), $i ),
+            'section' => 'sarai_chinwag_hero',
+            'type'    => 'url',
+        ) );
+
+        $wp_customize->add_setting( "hero_button_{$i}_style", array(
+            'default'           => $button_defaults[ $i ]['style'],
+            'sanitize_callback' => 'sarai_chinwag_sanitize_button_style',
+        ) );
+        $wp_customize->add_control( "hero_button_{$i}_style", array(
+            'label'   => sprintf( __( 'Button %d Style', 'sarai-chinwag' ), $i ),
+            'section' => 'sarai_chinwag_hero',
+            'type'    => 'select',
+            'choices' => $button_style_choices,
+        ) );
+    }
+
+    // ── Secondary Navigation ────────────────────────────────────────
+    $wp_customize->add_section( 'sarai_chinwag_secondary_nav', array(
+        'title'    => __( 'Secondary Navigation', 'sarai-chinwag' ),
+        'priority' => 26,
+    ) );
+
+    $wp_customize->add_setting( 'secondary_nav_enabled', array(
+        'default'           => false,
+        'sanitize_callback' => 'sarai_chinwag_sanitize_checkbox',
+    ) );
+    $wp_customize->add_control( 'secondary_nav_enabled', array(
+        'label'       => __( 'Enable Secondary Navigation', 'sarai-chinwag' ),
+        'description' => __( 'Displays a secondary nav bar below the header. Requires a menu assigned to the "Secondary Menu" location.', 'sarai-chinwag' ),
+        'section'     => 'sarai_chinwag_secondary_nav',
+        'type'        => 'checkbox',
+    ) );
+
+    // ── Typography ──────────────────────────────────────────────────
     $wp_customize->add_setting('sarai_chinwag_heading_font', array(
         'default' => 'System Fonts',
         'sanitize_callback' => 'sanitize_text_field',
@@ -442,4 +541,19 @@ function sarai_chinwag_customize_preview_js() {
     );
 }
 add_action('customize_preview_init', 'sarai_chinwag_customize_preview_js');
+
+/**
+ * Sanitize checkbox value.
+ */
+function sarai_chinwag_sanitize_checkbox( $value ) {
+    return (bool) $value;
+}
+
+/**
+ * Sanitize button style value.
+ */
+function sarai_chinwag_sanitize_button_style( $value ) {
+    $valid = array( 'primary', 'secondary', 'outline' );
+    return in_array( $value, $valid, true ) ? $value : 'primary';
+}
 ?>
