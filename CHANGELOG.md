@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.5.2] - 2026-02-18
+
+### Fixed
+- Load single.css on journal post type for proper layout
+- Center breadcrumbs and journal-date on mobile
+
 ## [2.5.1] - 2026-02-16
 
 - Show sidebar on journal archive page
