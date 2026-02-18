@@ -70,6 +70,39 @@
     line-height: 1.5;
 }
 
+/* Journal single — align header elements with content */
+.single-journal .entry-header {
+    width: 92%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media only screen and (min-width: 992px) {
+    .single-journal .entry-header {
+        width: 100%;
+    }
+}
+
+/* Journal archive — align content with site layout */
+.journal-archive .page-header {
+    width: 92%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.journal-archive .journal-list {
+    width: 92%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media only screen and (min-width: 992px) {
+    .journal-archive .page-header,
+    .journal-archive .journal-list {
+        width: 100%;
+    }
+}
+
 /* Mobile — stack sidebar below content */
 @media (max-width: 768px) {
     .post-type-archive-journal #primary {
