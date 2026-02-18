@@ -43,7 +43,7 @@ function sarai_chinwag_enqueue_styles() {
     }
 
     // Single view-specific styles (conditionally loaded)
-    if (is_single() || is_page() || (!sarai_chinwag_recipes_disabled() && is_singular('recipe'))) {
+    if (is_single() || is_page() || is_singular('journal') || (!sarai_chinwag_recipes_disabled() && is_singular('recipe'))) {
         $single_version = filemtime($theme_dir . '/inc/assets/css/single.css');
         wp_enqueue_style(
             'sarai-chinwag-single',
