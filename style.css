@@ -451,7 +451,7 @@ fill: #fff;
     #secondary {
         margin: auto;
     }
-    #primary p, #primary h1, #primary h2, #primary h3, #primary h4, #primary h5, ul.wp-block-list, ol.wp-block-list  {
+    #primary p, #primary h1, #primary h2, #primary h3, #primary h4, #primary h5, ul.wp-block-list, ol.wp-block-list, .journal-date  {
         width: 92%;
         margin-left: auto;
         margin-right: auto;
@@ -472,13 +472,6 @@ fill: #fff;
     }
     .post-badge-breadcrumbs, .archive-breadcrumbs {
         width: 92%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .journal-date {
-        width: 92%;
-        margin-left: auto;
-        margin-right: auto;
     }
     .gallery-discovery-badges {
         width: 92%;
@@ -542,7 +535,7 @@ fill: #fff;
     .site-main {
         max-width: 89%;
     }
-    #primary p, #primary h1, #primary h2, #primary h3, #primary h4, #primary h5, ul.wp-block-list, ol.wp-block-list, .post-badge-breadcrumbs, .archive-breadcrumbs {
+    #primary p, #primary h1, #primary h2, #primary h3, #primary h4, #primary h5, ul.wp-block-list, ol.wp-block-list, .post-badge-breadcrumbs, .archive-breadcrumbs, .journal-date {
         width: 100%;
     }
     #primary {
