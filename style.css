@@ -472,6 +472,13 @@ fill: #fff;
     }
     .post-badge-breadcrumbs, .archive-breadcrumbs {
         width: 92%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .journal-date {
+        width: 92%;
+        margin-left: auto;
+        margin-right: auto;
     }
     .gallery-discovery-badges {
         width: 92%;
