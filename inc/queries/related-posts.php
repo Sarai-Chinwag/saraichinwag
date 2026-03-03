@@ -32,15 +32,19 @@ function sarai_chinwag_get_posts_from_taxonomy_terms($term_ids, $taxonomy, $post
 function sarai_chinwag_get_hierarchical_related_posts($current_post_id, $limit = 3) {
     $related_posts = [];
     $excluded_ids = [$current_post_id]; // Start with current post excluded
-    $post_types = ['post'];
-    if (!sarai_chinwag_recipes_disabled()) {
-        $post_types[] = 'recipe';
-    }
-    if (!sarai_chinwag_quizzes_disabled()) {
-        $post_types[] = 'quiz';
-    }
-    if (!sarai_chinwag_journals_disabled()) {
-        $post_types[] = 'journal';
+    $current_post_type = get_post_type($current_post_id);
+
+    // Journal posts only see other journal posts; non-journal posts never see journal posts
+    if ($current_post_type === 'journal') {
+        $post_types = ['journal'];
+    } else {
+        $post_types = ['post'];
+        if (!sarai_chinwag_recipes_disabled()) {
+            $post_types[] = 'recipe';
+        }
+        if (!sarai_chinwag_quizzes_disabled()) {
+            $post_types[] = 'quiz';
+        }
     }
 
     // Priority 1: Same tags
