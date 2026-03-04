@@ -18,7 +18,11 @@
 
 <div class="entry-content">
     <?php
-    sarai_chinwag_display_featured_image_as_block();
+    sarai_chinwag_display_featured_image_as_block('large', array(
+        'fetchpriority' => 'high',
+        'decoding'      => 'async',
+        'loading'       => 'eager',
+    ));
 
     the_content();
 

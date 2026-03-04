@@ -136,6 +136,59 @@ add_filter('the_content', function($content){
 }, 15);
 
 /**
+ * Lazy-load below-fold content images for faster LCP
+ *
+ * Skips the first <img> in post content (typically above the fold) and adds
+ * loading="lazy" + decoding="async" to all subsequent images. This improves
+ * Core Web Vitals by deferring offscreen image downloads.
+ *
+ * Runs at priority 20, after the image anchoring filter (priority 15).
+ *
+ * @since 2.2.19
+ */
+add_filter('the_content', function($content) {
+    if (!is_singular()) {
+        return $content;
+    }
+
+    if (strpos($content, '<img') === false) {
+        return $content;
+    }
+
+    $image_count = 0;
+
+    $content = preg_replace_callback(
+        '/<img\b([^>]*)>/i',
+        function($matches) use (&$image_count) {
+            $image_count++;
+            $attrs = $matches[1];
+
+            // Skip the first image — it's above the fold (near the featured image)
+            if ($image_count === 1) {
+                // Ensure first content image is not lazy-loaded
+                $attrs = preg_replace('/\bloading\s*=\s*["\'][^"\']*["\']/i', '', $attrs);
+                return '<img' . $attrs . '>';
+            }
+
+            // Add loading="lazy" if not already present
+            if (stripos($attrs, 'loading=') === false) {
+                $attrs .= ' loading="lazy"';
+            }
+
+            // Add decoding="async" if not already present
+            if (stripos($attrs, 'decoding=') === false) {
+                $attrs .= ' decoding="async"';
+            }
+
+            return '<img' . $attrs . '>';
+        },
+        $content
+    );
+
+    return $content;
+}, 20);
+
+/**
  * Check if recipe functionality is disabled
  *
  * @return bool True if recipes are disabled, false if enabled
