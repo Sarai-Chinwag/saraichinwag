@@ -26,6 +26,9 @@
 
     the_content();
 
+    // Related posts section for engagement and bounce rate reduction
+    sarai_chinwag_related_posts_section();
+
     wp_link_pages( array(
         'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'sarai-chinwag' ),
         'after'  => '</div>',

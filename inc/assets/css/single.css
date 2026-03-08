@@ -146,9 +146,98 @@ h1.entry-title {
     margin-bottom: 10px;
 }
 
+/* ===== RELATED POSTS SECTION (You Might Also Like) ===== */
+
+.related-posts-section {
+    margin: 40px 0 20px;
+    padding: 25px 0;
+    border-top: 2px solid var(--color-border);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.related-posts-title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.3em;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+}
+
+.related-posts-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--color-primary);
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+.related-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.related-post-item {
+    text-align: center;
+}
+
+.related-post-thumbnail {
+    margin-bottom: 12px;
+    overflow: hidden;
+    border-radius: 8px;
+    aspect-ratio: 1 / 1;
+}
+
+.related-post-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.related-post-item:hover .related-post-thumbnail img {
+    transform: scale(1.05);
+}
+
+.related-post-title {
+    font-size: 0.95em;
+    margin: 0;
+    line-height: 1.4;
+    font-family: var(--font-body);
+}
+
+.related-post-title a {
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.related-post-title a:hover {
+    color: var(--color-primary);
+}
+
 /* ===== MOBILE RESPONSIVE ===== */
 
-/* Consolidated badge-breadcrumb mobile styles */
+/* Tablet and smaller */
+@media (max-width: 900px) {
+    .related-posts-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .related-posts-section {
+        padding: 20px 0;
+    }
+    
+    .related-posts-title {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+    }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
     .post-badge-breadcrumbs {
         margin: 10px auto 8px;
@@ -177,5 +266,36 @@ h1.entry-title {
 
     .discovery-post .post-thumbnail {
         margin-bottom: 15px;
+    }
+    
+    .related-posts-section {
+        margin: 30px 0 15px;
+        padding: 15px 0;
+    }
+    
+    .related-posts-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .related-post-thumbnail {
+        margin-bottom: 8px;
+        border-radius: 6px;
+    }
+    
+    .related-post-title {
+        font-size: 0.85em;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 400px) {
+    .related-posts-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .related-post-title {
+        font-size: 0.8em;
     }
 }

@@ -120,10 +120,32 @@ function sarai_chinwag_random_discovery() {
     // Start output buffering to cache the result
     ob_start();
 
-    // Get 3 hierarchically related posts using intelligent fallback system
-    $related_posts = sarai_chinwag_get_hierarchical_related_posts($current_post_id, 3);
+    // Get 3 truly RANDOM posts from across the site (not related to current post)
+    // This provides discovery paths to OTHER parts of the site
+    $current_post_type = get_post_type($current_post_id);
+    
+    // Journal posts only see other journal posts; non-journal posts never see journal posts
+    if ($current_post_type === 'journal') {
+        $post_types = ['journal'];
+    } else {
+        $post_types = ['post'];
+        if (!sarai_chinwag_recipes_disabled()) {
+            $post_types[] = 'recipe';
+        }
+        if (!sarai_chinwag_quizzes_disabled()) {
+            $post_types[] = 'quiz';
+        }
+    }
 
-    if (empty($related_posts)) {
+    $random_posts = get_posts([
+        'post_type' => $post_types,
+        'posts_per_page' => 3,
+        'post__not_in' => [$current_post_id],
+        'orderby' => 'rand',
+        'post_status' => 'publish'
+    ]);
+
+    if (empty($random_posts)) {
         ob_end_clean();
         return;
     }
@@ -135,19 +157,19 @@ function sarai_chinwag_random_discovery() {
     echo '<h2 class="widget-title">' . __('Keep Exploring', 'sarai-chinwag') . '</h2>';
     echo '<div class="post-grid discovery-grid">';
 
-    foreach ($related_posts as $related_post) {
-        echo '<article id="discovery-post-' . $related_post->ID . '" class="discovery-post">';
+    foreach ($random_posts as $random_post) {
+        echo '<article id="discovery-post-' . $random_post->ID . '" class="discovery-post">';
 
-        if (has_post_thumbnail($related_post->ID)) {
+        if (has_post_thumbnail($random_post->ID)) {
             echo '<div class="post-thumbnail">';
-            echo '<a href="' . esc_url(get_permalink($related_post->ID)) . '">';
-            echo get_the_post_thumbnail($related_post->ID, 'grid-thumb', array('itemprop' => 'image'));
+            echo '<a href="' . esc_url(get_permalink($random_post->ID)) . '">';
+            echo get_the_post_thumbnail($random_post->ID, 'grid-thumb', array('itemprop' => 'image'));
             echo '</a>';
             echo '</div>';
         }
 
         echo '<h3 class="entry-title">';
-        echo '<a href="' . esc_url(get_permalink($related_post->ID)) . '" rel="bookmark">' . get_the_title($related_post->ID) . '</a>';
+        echo '<a href="' . esc_url(get_permalink($random_post->ID)) . '" rel="bookmark">' . get_the_title($random_post->ID) . '</a>';
         echo '</h3>';
 
         echo '</article>';
@@ -163,3 +185,67 @@ function sarai_chinwag_random_discovery() {
 }
 
 add_action('after_post_main', 'sarai_chinwag_random_discovery');
+
+/**
+ * Display "You Might Also Like" related posts section
+ * Shows 4 related posts with thumbnail + title, placed after post content
+ * Uses same hierarchical fallback: Tags → Categories → Parent Categories → Random
+ */
+function sarai_chinwag_related_posts_section() {
+    if (!is_singular(array('post', 'recipe', 'quiz', 'journal'))) {
+        return;
+    }
+
+    global $post;
+    $current_post_id = $post->ID;
+    
+    // Check cache first - related posts cached for 15 minutes
+    $cache_key = "related_posts_section_{$current_post_id}";
+    $cached_content = wp_cache_get($cache_key, 'sarai_chinwag_related');
+    
+    if (false !== $cached_content) {
+        echo $cached_content;
+        return;
+    }
+    
+    // Start output buffering to cache the result
+    ob_start();
+
+    // Get 4 hierarchically related posts using intelligent fallback system
+    $related_posts = sarai_chinwag_get_hierarchical_related_posts($current_post_id, 4);
+
+    if (empty($related_posts)) {
+        ob_end_clean();
+        return;
+    }
+
+    echo '<aside class="related-posts-section">';
+    echo '<h2 class="related-posts-title">' . __('You Might Also Like', 'sarai-chinwag') . '</h2>';
+    echo '<div class="related-posts-grid">';
+
+    foreach ($related_posts as $related_post) {
+        echo '<article class="related-post-item">';
+
+        if (has_post_thumbnail($related_post->ID)) {
+            echo '<div class="related-post-thumbnail">';
+            echo '<a href="' . esc_url(get_permalink($related_post->ID)) . '">';
+            echo get_the_post_thumbnail($related_post->ID, 'grid-thumb', array('loading' => 'lazy'));
+            echo '</a>';
+            echo '</div>';
+        }
+
+        echo '<h3 class="related-post-title">';
+        echo '<a href="' . esc_url(get_permalink($related_post->ID)) . '" rel="bookmark">' . esc_html(get_the_title($related_post->ID)) . '</a>';
+        echo '</h3>';
+
+        echo '</article>';
+    }
+    echo '</div>'; // End of related-posts-grid
+    echo '</aside>';
+    
+    // Cache the output for 15 minutes
+    $output = ob_get_contents();
+    wp_cache_set($cache_key, $output, 'sarai_chinwag_related', 15 * MINUTE_IN_SECONDS);
+    
+    ob_end_flush();
+}
